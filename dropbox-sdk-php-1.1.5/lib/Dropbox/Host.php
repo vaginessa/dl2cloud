@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -14,17 +15,19 @@ final class Host
 {
     /**
      * Returns a Host object configured with the three standard Dropbox host: "api.dropbox.com",
-     * "api-content.dropbox.com", and "www.dropbox.com"
+     * "api-content.dropbox.com", and "www.dropbox.com".
      *
      * @return Host
      */
-    static function getDefault()
+    public static function getDefault()
     {
         if (!self::$defaultValue) {
-            self::$defaultValue = new Host("api.dropbox.com", "api-content.dropbox.com", "www.dropbox.com");
+            self::$defaultValue = new self('api.dropbox.com', 'api-content.dropbox.com', 'www.dropbox.com');
         }
+
         return self::$defaultValue;
     }
+
     private static $defaultValue;
 
     /** @var string */
@@ -38,13 +41,13 @@ final class Host
      * Constructor.
      *
      * @param string $api
-     *     See {@link getApi()}
+     *                        See {@link getApi()}
      * @param string $content
-     *     See {@link getContent()}
+     *                        See {@link getContent()}
      * @param string $web
-     *     See {@link getWeb()}
+     *                        See {@link getWeb()}
      */
-    function __construct($api, $content, $web)
+    public function __construct($api, $content, $web)
     {
         $this->api = $api;
         $this->content = $content;
@@ -57,7 +60,10 @@ final class Host
      *
      * @return string
      */
-    function getApi() { return $this->api; }
+    public function getApi()
+    {
+        return $this->api;
+    }
 
     /**
      * Returns the host name of the Dropbox API content server.
@@ -65,7 +71,10 @@ final class Host
      *
      * @return string
      */
-    function getContent() { return $this->content; }
+    public function getContent()
+    {
+        return $this->content;
+    }
 
     /**
      * Returns the host name of the Dropbox web server.  Used during user authorization.
@@ -73,16 +82,21 @@ final class Host
      *
      * @return string
      */
-    function getWeb() { return $this->web; }
+    public function getWeb()
+    {
+        return $this->web;
+    }
 
     /**
      * Check that a function argument is of type <code>Host</code>.
      *
      * @internal
      */
-    static function checkArg($argName, $argValue)
+    public static function checkArg($argName, $argValue)
     {
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 
     /**
@@ -91,9 +105,13 @@ final class Host
      *
      * @internal
      */
-    static function checkArgOrNull($argName, $argValue)
+    public static function checkArgOrNull($argName, $argValue)
     {
-        if ($argValue === null) return;
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if ($argValue === null) {
+            return;
+        }
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 }

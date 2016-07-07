@@ -1,11 +1,11 @@
 <?php
+
 namespace Dropbox;
 
 /**
  * This class contains methods to load an AppInfo and AccessToken from a JSON file.
  * This can help simplify simple scripts (such as the example programs that come with the
  * SDK) but is probably not useful in typical Dropbox API apps.
- *
  */
 final class AuthInfo
 {
@@ -14,13 +14,14 @@ final class AuthInfo
      * in the examples directory for details about what this file should look like.
      *
      * @param string $path
-     *    Path to a JSON file
-     * @return array
-     *    A <code>list(string $accessToken, Host $host)</code>.
+     *                     Path to a JSON file
      *
      * @throws AuthInfoLoadException
+     *
+     * @return array
+     *               A <code>list(string $accessToken, Host $host)</code>.
      */
-    static function loadFromJsonFile($path)
+    public static function loadFromJsonFile($path)
     {
         if (!file_exists($path)) {
             throw new AuthInfoLoadException("File doesn't exist: \"$path\"");
@@ -41,36 +42,36 @@ final class AuthInfo
      * please use the @see loadFromJsonFile method.
      *
      * @param array $jsonArr
-     *    A parsed JSON object, typcally the result of json_decode(..., true).
-     * @return array
-     *    A <code>list(string $accessToken, Host $host)</code>.
+     *                       A parsed JSON object, typcally the result of json_decode(..., true).
      *
      * @throws AuthInfoLoadException
+     *
+     * @return array
+     *               A <code>list(string $accessToken, Host $host)</code>.
      */
     private static function loadFromJson($jsonArr)
     {
         if (!is_array($jsonArr)) {
-            throw new AuthInfoLoadException("Expecting JSON object, found something else");
+            throw new AuthInfoLoadException('Expecting JSON object, found something else');
         }
 
         // Check access_token
         if (!array_key_exists('access_token', $jsonArr)) {
-            throw new AuthInfoLoadException("Missing field \"access_token\"");
+            throw new AuthInfoLoadException('Missing field "access_token"');
         }
 
         $accessToken = $jsonArr['access_token'];
         if (!is_string($accessToken)) {
-            throw new AuthInfoLoadException("Expecting field \"access_token\" to be a string");
+            throw new AuthInfoLoadException('Expecting field "access_token" to be a string');
         }
 
         // Check for the optional 'host' field
         if (!array_key_exists('host', $jsonArr)) {
             $host = null;
-        }
-        else {
-            $baseHost = $jsonArr["host"];
+        } else {
+            $baseHost = $jsonArr['host'];
             if (!is_string($baseHost)) {
-                throw new AuthInfoLoadException("Optional field \"host\" must be a string");
+                throw new AuthInfoLoadException('Optional field "host" must be a string');
             }
 
             $api = "api-$baseHost";
@@ -80,6 +81,6 @@ final class AuthInfo
             $host = new Host($api, $content, $web);
         }
 
-        return array($accessToken, $host);
+        return [$accessToken, $host];
     }
 }

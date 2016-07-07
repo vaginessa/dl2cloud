@@ -3,7 +3,7 @@
 
 require_once __DIR__.'/helper.php';
 
-list($client) = parseArgs("account-info", $argv);
+list($client) = parseArgs('account-info', $argv);
 
 $accountInfo = $client->getAccountInfo();
 

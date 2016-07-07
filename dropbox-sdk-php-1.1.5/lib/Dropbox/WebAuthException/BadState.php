@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -7,13 +8,13 @@ namespace Dropbox;
  *
  * The recommended action is to redirect the user's browser to try the approval process again.
  */
-class WebAuthException_BadState extends \Exception
+class BadState extends \Exception
 {
     /**
      * @internal
      */
-    function __construct()
+    public function __construct()
     {
-        parent::__construct("Missing CSRF token in session.");
+        parent::__construct('Missing CSRF token in session.');
     }
 }

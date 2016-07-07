@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -11,7 +12,7 @@ final class AppInfoLoadException extends \Exception
      *
      * @internal
      */
-    function __construct($message)
+    public function __construct($message)
     {
         parent::__construct($message);
     }

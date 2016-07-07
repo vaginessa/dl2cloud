@@ -3,21 +3,22 @@
 Copyright 2015-2016 Daniil Gentili
 (https://daniil.it)
 This file is part of the dl2cloud (https://github.com/danog/dl2cloud).
-Dl2cloud is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. 
+Dl2cloud is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 Dl2cloud is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU Affero General Public License for more details. 
-You should have received a copy of the GNU General Public License along with the dl2cloud. 
+See the GNU Affero General Public License for more details.
+You should have received a copy of the GNU General Public License along with the dl2cloud.
 If not, see <http://www.gnu.org/licenses/>.
 */
-function declareverify($email) {
- global $subject;
- global $body;
- global $htmlbody;
- global $username;
+function declareverify($email)
+{
+    global $subject;
+    global $body;
+    global $htmlbody;
+    global $username;
 
- $subject = ",^^ Email verification ^^,";
+    $subject = ',^^ Email verification ^^,';
 
- $htmlbody = "Hello $username!
+    $htmlbody = "Hello $username!
 <BR><BR>
 You, or someone else, signed up to </a href=\"http://2dropbox.daniil.it\" TARGET=\"_blank\">2dropbox</a>
 <BR><BR>
@@ -35,7 +36,7 @@ Bye!<BR>
 ";
 
 
- $body = "Hello $username!
+    $body = "Hello $username!
 
 You, or someone else, signed up to 2dropbox (http://2dropbox.daniil.it).
 
@@ -50,17 +51,18 @@ I hope you have a good time downloading files 2dropbox!
 Bye!
 Daniil Gentili (http://daniil.it)
 ";
-};
+}
 
 
-function declarewelcome() {
- global $subject;
- global $body;
- global $htmlbody;
- global $username;
+function declarewelcome()
+{
+    global $subject;
+    global $body;
+    global $htmlbody;
+    global $username;
 
- $subject = ",^^ Welcome! ^^,";
- $htmlbody = "Welcome to 2dropbox, $username!
+    $subject = ',^^ Welcome! ^^,';
+    $htmlbody = "Welcome to 2dropbox, $username!
 <BR><BR>
 You have successfully verified your email!<BR>
 I hope you have a good time downloading files 2dropbox!<BR>
@@ -68,7 +70,7 @@ Bye!<BR>
 <a href=\"http://daniil.it\">Daniil Gentili</a>
 ";
 
- $body = "Welcome to 2dropbox, $username!
+    $body = "Welcome to 2dropbox, $username!
 
 You have successfully verified your email!
 
@@ -76,6 +78,4 @@ I hope you have a good time downloading files 2dropbox!
 Bye!
 Daniil Gentili (http://daniil.it)
 ";
-
-};
-?>
+}

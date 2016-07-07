@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -25,7 +26,7 @@ final class WriteMode
     /**
      * @internal
      */
-    function getExtraParams()
+    public function getExtraParams()
     {
         return $this->extraParams;
     }
@@ -42,13 +43,15 @@ final class WriteMode
      *
      * @return WriteMode
      */
-    static function add()
+    public static function add()
     {
         if (self::$addInstance === null) {
-            self::$addInstance = new WriteMode(array("overwrite" => "false"));
+            self::$addInstance = new self(['overwrite' => 'false']);
         }
+
         return self::$addInstance;
     }
+
     private static $addInstance = null;
 
     /**
@@ -58,13 +61,15 @@ final class WriteMode
      *
      * @return WriteMode
      */
-    static function force()
+    public static function force()
     {
         if (self::$forceInstance === null) {
-            self::$forceInstance = new WriteMode(array("overwrite" => "true"));
+            self::$forceInstance = new self(['overwrite' => 'true']);
         }
+
         return self::$forceInstance;
     }
+
     private static $forceInstance = null;
 
     /**
@@ -85,11 +90,12 @@ final class WriteMode
      * metadata object returned by the API call.
      *
      * @param string $revToReplace
+     *
      * @return WriteMode
      */
-    static function update($revToReplace)
+    public static function update($revToReplace)
     {
-        return new WriteMode(array("parent_rev" => $revToReplace));
+        return new self(['parent_rev' => $revToReplace]);
     }
 
     /**
@@ -97,9 +103,11 @@ final class WriteMode
      *
      * @internal
      */
-    static function checkArg($argName, $argValue)
+    public static function checkArg($argName, $argValue)
     {
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 
     /**
@@ -108,9 +116,13 @@ final class WriteMode
      *
      * @internal
      */
-    static function checkArgOrNull($argName, $argValue)
+    public static function checkArgOrNull($argName, $argValue)
     {
-        if ($argValue === null) return;
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if ($argValue === null) {
+            return;
+        }
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 }

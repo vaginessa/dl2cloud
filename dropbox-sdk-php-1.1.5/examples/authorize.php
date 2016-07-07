@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__."/../lib/Dropbox/strict.php";
+require_once __DIR__.'/../lib/Dropbox/strict.php';
 
-if (PHP_SAPI !== "cli") {
-    throw new \Exception("This program was meant to be run from the command-line and not as a web app.  Bad value for PHP_SAPI.  Expected \"cli\", given \"".PHP_SAPI."\".");
+if (PHP_SAPI !== 'cli') {
+    throw new \Exception('This program was meant to be run from the command-line and not as a web app.  Bad value for PHP_SAPI.  Expected "cli", given "'.PHP_SAPI.'".');
 }
 
 // NOTE: You should be using Composer's global autoloader.  But just so these examples
@@ -18,7 +18,7 @@ if ($argc === 1) {
     die;
 }
 if ($argc !== 3) {
-    fwrite(STDERR, "Expecting exactly 2 arguments, got ".($argc - 1)."\n");
+    fwrite(STDERR, 'Expecting exactly 2 arguments, got '.($argc - 1)."\n");
     fwrite(STDERR, "Run with no arguments for help\n");
     die;
 }
@@ -28,20 +28,19 @@ $argAuthFileOutput = $argv[2];
 
 try {
     list($appInfoJson, $appInfo) = dbx\AppInfo::loadFromJsonFileWithRaw($argAppInfoFile);
-}
-catch (dbx\AppInfoLoadException $ex) {
-    fwrite(STDERR, "Error loading <app-info-file>: ".$ex->getMessage()."\n");
+} catch (dbx\AppInfoLoadException $ex) {
+    fwrite(STDERR, 'Error loading <app-info-file>: '.$ex->getMessage()."\n");
     die;
 }
 
 // This is a command-line tool (as opposed to a web app), so we can't supply a redirect URI.
-$webAuth = new dbx\WebAuthNoRedirect($appInfo, "examples-authorize", "en");
+$webAuth = new dbx\WebAuthNoRedirect($appInfo, 'examples-authorize', 'en');
 $authorizeUrl = $webAuth->start();
 
 echo "1. Go to: $authorizeUrl\n";
 echo "2. Click \"Allow\" (you might have to log in first).\n";
 echo "3. Copy the authorization code.\n";
-echo "Enter the authorization code here: ";
+echo 'Enter the authorization code here: ';
 $authCode = \trim(\fgets(STDIN));
 
 list($accessToken, $userId) = $webAuth->finish($authCode);
@@ -50,9 +49,9 @@ echo "Authorization complete.\n";
 echo "- User ID: $userId\n";
 echo "- Access Token: $accessToken\n";
 
-$authArr = array(
-    "access_token" => $accessToken,
-);
+$authArr = [
+    'access_token' => $accessToken,
+];
 
 if (array_key_exists('host', $appInfoJson)) {
     $authArr['host'] = $appInfoJson['host'];
@@ -66,8 +65,7 @@ $json = json_encode($authArr, $json_options);
 
 if (file_put_contents($argAuthFileOutput, $json) !== false) {
     echo "Saved authorization information to \"$argAuthFileOutput\".\n";
-}
-else {
+} else {
     fwrite(STDERR, "Error saving to \"$argAuthFileOutput\".\n");
     fwrite(STDERR, "Dumping to stderr instead:\n");
     fwrite(STDERR, $json);
@@ -75,7 +73,8 @@ else {
     die;
 }
 
-function echoHelp($command) {
+function echoHelp($command)
+{
     echo "\n";
     echo "Usage: $command <app-info-file> <auth-file-output>\n";
     echo "\n";

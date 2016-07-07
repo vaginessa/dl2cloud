@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -13,7 +14,10 @@ class OAuth1AccessToken
      *
      * @return string
      */
-    function getKey() { return $this->key; }
+    public function getKey()
+    {
+        return $this->key;
+    }
 
     /** @var string */
     private $key;
@@ -27,7 +31,10 @@ class OAuth1AccessToken
      *
      * @return string
      */
-    function getSecret() { return $this->secret; }
+    public function getSecret()
+    {
+        return $this->secret;
+    }
 
     /** @var secret */
     private $secret;
@@ -36,11 +43,11 @@ class OAuth1AccessToken
      * Constructor.
      *
      * @param string $key
-     *     {@link getKey()}
+     *                       {@link getKey()}
      * @param string $secret
-     *     {@link getSecret()}
+     *                       {@link getSecret()}
      */
-    function __construct($key, $secret)
+    public function __construct($key, $secret)
     {
         AppInfo::checkKeyArg($key);
         AppInfo::checkSecretArg($secret);
@@ -50,12 +57,14 @@ class OAuth1AccessToken
     }
 
     /**
-     * Use this to check that a function argument is of type <code>AppInfo</code>
+     * Use this to check that a function argument is of type <code>AppInfo</code>.
      *
      * @internal
      */
-    static function checkArg($argName, $argValue)
+    public static function checkArg($argName, $argValue)
     {
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 }

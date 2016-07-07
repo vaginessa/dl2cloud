@@ -6,9 +6,9 @@ use \Dropbox as dbx;
 
 /* @var dbx\Client $client */
 /* @var string $dropboxPath */
-list($client, $dropboxPath) = parseArgs("get-metadata", $argv, array(
-        array("dropbox-path", "The path (on Dropbox) that you want metadata for."),
-    ));
+list($client, $dropboxPath) = parseArgs('get-metadata', $argv, [
+        ['dropbox-path', 'The path (on Dropbox) that you want metadata for.'],
+    ]);
 
 $pathError = dbx\Path::findError($dropboxPath);
 if ($pathError !== null) {
@@ -33,10 +33,12 @@ if ($metadata['is_dir']) {
 print_r($metadata);
 
 if ($children !== null && count($children) > 0) {
-    print "Children:\n";
+    echo "Children:\n";
     foreach ($children as $child) {
         $name = dbx\Path::getName($child['path']);
-        if ($child['is_dir']) $name = "$name/";  // Put a "/" after folder names.
-        print "- $name\n";
+        if ($child['is_dir']) {
+            $name = "$name/";
+        }  // Put a "/" after folder names.
+        echo "- $name\n";
     }
 }

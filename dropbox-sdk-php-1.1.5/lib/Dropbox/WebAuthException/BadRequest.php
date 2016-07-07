@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -6,14 +7,14 @@ namespace Dropbox;
  *
  * The recommended action is to show an HTTP 400 error page.
  */
-class WebAuthException_BadRequest extends \Exception
+class BadRequest extends \Exception
 {
     /**
      * @param string $message
      *
      * @internal
      */
-    function __construct($message)
+    public function __construct($message)
     {
         parent::__construct($message);
     }

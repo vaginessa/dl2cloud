@@ -20,7 +20,7 @@ You can run this script in one of three ways:
     ?>
 */
 
-require_once __DIR__."/../lib/Dropbox/strict.php";
+require_once __DIR__.'/../lib/Dropbox/strict.php';
 
 // NOTE: You should be using Composer's global autoloader.  But just so these examples
 // work for people who don't have Composer, we'll use the library's "autoload.php".
@@ -28,12 +28,13 @@ require_once __DIR__.'/../lib/Dropbox/autoload.php';
 
 use \Dropbox as dbx;
 
-if (PHP_SAPI === "cli") {
+if (PHP_SAPI === 'cli') {
     // Command-line test.
     $passed = dbx\SSLTester::test();
-    if (!$passed) exit(1);
-}
-else {
+    if (!$passed) {
+        exit(1);
+    }
+} else {
     // Web test.
     echo "<pre>\n";
     dbx\SSLTester::test();

@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -9,7 +10,7 @@ class StreamReadException extends \Exception
     /**
      * @internal
      */
-    function __construct($message, $cause = null)
+    public function __construct($message, $cause = null)
     {
         parent::__construct($message, 0, $cause);
     }

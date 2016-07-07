@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -7,14 +8,14 @@ namespace Dropbox;
  *
  * The recommended action is to respond with an HTTP 403 error page.
  */
-class WebAuthException_Csrf extends \Exception
+class Csrf extends \Exception
 {
     /**
      * @param string $message
      *
      * @internal
      */
-    function __construct($message)
+    public function __construct($message)
     {
         parent::__construct($message);
     }

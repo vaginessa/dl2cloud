@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 // The Dropbox SDK autoloader.  You probably shouldn't be using this.  Instead,
@@ -14,15 +15,17 @@ namespace Dropbox;
 function autoload($name)
 {
     // If the name doesn't start with "Dropbox\", then its not once of our classes.
-    if (\substr_compare($name, "Dropbox\\", 0, 8) !== 0) return;
+    if (\substr_compare($name, 'Dropbox\\', 0, 8) !== 0) {
+        return;
+    }
 
     // Take the "Dropbox\" prefix off.
     $stem = \substr($name, 8);
 
     // Convert "\" and "_" to path separators.
-    $pathified_stem = \str_replace(array("\\", "_"), '/', $stem);
+    $pathified_stem = \str_replace(['\\', '_'], '/', $stem);
 
-    $path = __DIR__ . "/" . $pathified_stem . ".php";
+    $path = __DIR__.'/'.$pathified_stem.'.php';
     if (\is_file($path)) {
         require_once $path;
     }

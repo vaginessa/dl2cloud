@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -6,40 +7,43 @@ namespace Dropbox;
  */
 final class DropboxMetadataHeaderCatcher
 {
-    /**
+    /*
      * @var mixed
      */
-    var $metadata = null;
+    public $metadata = null;
 
-    /**
+    /*
      * @var string
      */
-    var $error = null;
+    public $error = null;
 
-    /**
+    /*
      * @var bool
      */
-    var $skippedFirstLine = false;
+    public $skippedFirstLine = false;
 
     /**
      * @param resource $ch
      */
-    function __construct($ch)
+    public function __construct($ch)
     {
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, array($this, 'headerFunction'));
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, [$this, 'headerFunction']);
     }
 
     /**
      * @param resource $ch
-     * @param string $header
-     * @return int
+     * @param string   $header
+     *
      * @throws Exception_BadResponse
+     *
+     * @return int
      */
-    function headerFunction($ch, $header)
+    public function headerFunction($ch, $header)
     {
         // The first line is the HTTP status line (Ex: "HTTP/1.1 200 OK").
         if (!$this->skippedFirstLine) {
             $this->skippedFirstLine = true;
+
             return strlen($header);
         }
 
@@ -49,12 +53,13 @@ final class DropboxMetadataHeaderCatcher
         }
 
         // case-insensitive starts-with check.
-        if (\substr_compare($header, "x-dropbox-metadata:", 0, 19, true) !== 0) {
+        if (\substr_compare($header, 'x-dropbox-metadata:', 0, 19, true) !== 0) {
             return strlen($header);
         }
 
         if ($this->metadata !== null) {
-            $this->error = "Duplicate X-Dropbox-Metadata header";
+            $this->error = 'Duplicate X-Dropbox-Metadata header';
+
             return strlen($header);
         }
 
@@ -62,22 +67,25 @@ final class DropboxMetadataHeaderCatcher
         $parsed = json_decode($headerValue, true, 10);
 
         if ($parsed === null) {
-            $this->error = "Bad JSON in X-Dropbox-Metadata header";
+            $this->error = 'Bad JSON in X-Dropbox-Metadata header';
+
             return strlen($header);
         }
 
         $this->metadata = $parsed;
+
         return strlen($header);
     }
 
-    function getMetadata()
+    public function getMetadata()
     {
         if ($this->error !== null) {
             throw new Exception_BadResponse($this->error);
         }
         if ($this->metadata === null) {
-            throw new Exception_BadResponse("Missing X-Dropbox-Metadata header");
+            throw new Exception_BadResponse('Missing X-Dropbox-Metadata header');
         }
+
         return $this->metadata;
     }
 }

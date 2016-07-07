@@ -4,11 +4,11 @@
 require_once __DIR__.'/helper.php';
 use \Dropbox as dbx;
 
-list($client, $dropboxPath, $localPath) = parseArgs("get-shareable-link", $argv,
+list($client, $dropboxPath, $localPath) = parseArgs('get-shareable-link', $argv,
     // Required parameters
-    array(
-        array("dropbox-path", "The path of the file (on Dropbox) to get a shareable link for."),
-    ));
+    [
+        ['dropbox-path', 'The path of the file (on Dropbox) to get a shareable link for.'],
+    ]);
 
 $pathError = dbx\Path::findErrorNonRoot($dropboxPath);
 if ($pathError !== null) {
@@ -22,4 +22,4 @@ if ($url === null) {
     die;
 }
 
-print "$url\n";
+echo "$url\n";
