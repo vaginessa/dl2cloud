@@ -2,7 +2,7 @@
 
 require_once __DIR__.'/../lib/Dropbox/strict.php';
 
-$appInfoFile = __DIR__."/web-file-browser.app";
+$appInfoFile = __DIR__.'/web-file-browser.app';
 
 // NOTE: You should be using Composer's global autoloader.  But just so these examples
 // work for people who don't have Composer, we'll use the library's "autoload.php".
@@ -14,35 +14,35 @@ $requestPath = init();
 
 session_start();
 
-if ($requestPath === "/") {
+if ($requestPath === '/') {
     $dbxClient = getClient();
 
     if ($dbxClient === false) {
-        header("Location: ".getPath("dropbox-auth-start"));
+        header('Location: '.getPath('dropbox-auth-start'));
         exit;
     }
 
-    $path = "/";
-    if (isset($_GET['path'])) $path = $_GET['path'];
+    $path = '/';
+    if (isset($_GET['path'])) {
+        $path = $_GET['path'];
+    }
 
     $entry = $dbxClient->getMetadataWithChildren($path);
     if ($entry['is_dir']) {
         echo renderFolder($entry);
-    }
-    else {
+    } else {
         echo renderFile($entry);
     }
-}
-else if ($requestPath == "/download") {
+} elseif ($requestPath == '/download') {
     $dbxClient = getClient();
 
     if ($dbxClient === false) {
-        header("Location: ".getPath("dropbox-auth-start"));
+        header('Location: '.getPath('dropbox-auth-start'));
         exit;
     }
 
     if (!isset($_GET['path'])) {
-        header("Location: ".getPath(""));
+        header('Location: '.getPath(''));
         exit;
     }
     $path = $_GET['path'];
@@ -54,92 +54,83 @@ else if ($requestPath == "/download") {
     fseek($fd, 0);
     fpassthru($fd);
     fclose($fd);
-}
-else if ($requestPath === "/upload") {
+} elseif ($requestPath === '/upload') {
     if (empty($_FILES['file']['name'])) {
-        echo renderHtmlPage("Error", "Please choose a file to upload");
+        echo renderHtmlPage('Error', 'Please choose a file to upload');
         exit;
     }
 
     if (!empty($_FILES['file']['error'])) {
-        echo renderHtmlPage("Error", "Error ".$_FILES['file']['error']." uploading file.  See <a href='http://php.net/manual/en/features.file-upload.errors.php'>the docs</a> for details");
+        echo renderHtmlPage('Error', 'Error '.$_FILES['file']['error']." uploading file.  See <a href='http://php.net/manual/en/features.file-upload.errors.php'>the docs</a> for details");
         exit;
     }
 
     $dbxClient = getClient();
 
-    $remoteDir = "/";
-    if (isset($_POST['folder'])) $remoteDir = $_POST['folder'];
+    $remoteDir = '/';
+    if (isset($_POST['folder'])) {
+        $remoteDir = $_POST['folder'];
+    }
 
-    $remotePath = rtrim($remoteDir, "/")."/".$_FILES['file']['name'];
+    $remotePath = rtrim($remoteDir, '/').'/'.$_FILES['file']['name'];
 
-    $fp = fopen($_FILES['file']['tmp_name'], "rb");
+    $fp = fopen($_FILES['file']['tmp_name'], 'rb');
     $result = $dbxClient->uploadFile($remotePath, dbx\WriteMode::add(), $fp);
     fclose($fp);
     $str = print_r($result, true);
-    echo renderHtmlPage("Uploading File", "Result: <pre>$str</pre>");
-}
-else if ($requestPath === "/dropbox-auth-start") {
+    echo renderHtmlPage('Uploading File', "Result: <pre>$str</pre>");
+} elseif ($requestPath === '/dropbox-auth-start') {
     $authorizeUrl = getWebAuth()->start();
     header("Location: $authorizeUrl");
-}
-else if ($requestPath === "/dropbox-auth-finish") {
+} elseif ($requestPath === '/dropbox-auth-finish') {
     try {
         list($accessToken, $userId, $urlState) = getWebAuth()->finish($_GET);
         // We didn't pass in $urlState to finish, and we're assuming the session can't be
         // tampered with, so this should be null.
         assert($urlState === null);
-    }
-    catch (dbx\WebAuthException_BadRequest $ex) {
-        respondWithError(400, "Bad Request");
+    } catch (dbx\WebAuthException_BadRequest $ex) {
+        respondWithError(400, 'Bad Request');
         // Write full details to server error log.
         // IMPORTANT: Never show the $ex->getMessage() string to the user -- it could contain
         // sensitive information.
-        error_log("/dropbox-auth-finish: bad request: " . $ex->getMessage());
+        error_log('/dropbox-auth-finish: bad request: '.$ex->getMessage());
         exit;
-    }
-    catch (dbx\WebAuthException_BadState $ex) {
+    } catch (dbx\WebAuthException_BadState $ex) {
         // Auth session expired.  Restart the auth process.
-        header("Location: ".getPath("dropbox-auth-start"));
+        header('Location: '.getPath('dropbox-auth-start'));
         exit;
-    }
-    catch (dbx\WebAuthException_Csrf $ex) {
-        respondWithError(403, "Unauthorized", "CSRF mismatch");
+    } catch (dbx\WebAuthException_Csrf $ex) {
+        respondWithError(403, 'Unauthorized', 'CSRF mismatch');
         // Write full details to server error log.
         // IMPORTANT: Never show the $ex->getMessage() string to the user -- it contains
         // sensitive information that could be used to bypass the CSRF check.
-        error_log("/dropbox-auth-finish: CSRF mismatch: " . $ex->getMessage());
+        error_log('/dropbox-auth-finish: CSRF mismatch: '.$ex->getMessage());
         exit;
-    }
-    catch (dbx\WebAuthException_NotApproved $ex) {
-        echo renderHtmlPage("Not Authorized?", "Why not?");
+    } catch (dbx\WebAuthException_NotApproved $ex) {
+        echo renderHtmlPage('Not Authorized?', 'Why not?');
         exit;
-    }
-    catch (dbx\WebAuthException_Provider $ex) {
-        error_log("/dropbox-auth-finish: unknown error: " . $ex->getMessage());
-        respondWithError(500, "Internal Server Error");
+    } catch (dbx\WebAuthException_Provider $ex) {
+        error_log('/dropbox-auth-finish: unknown error: '.$ex->getMessage());
+        respondWithError(500, 'Internal Server Error');
         exit;
-    }
-    catch (dbx\Exception $ex) {
-        error_log("/dropbox-auth-finish: error communicating with Dropbox API: " . $ex->getMessage());
-        respondWithError(500, "Internal Server Error");
+    } catch (dbx\Exception $ex) {
+        error_log('/dropbox-auth-finish: error communicating with Dropbox API: '.$ex->getMessage());
+        respondWithError(500, 'Internal Server Error');
         exit;
     }
 
     // NOTE: A real web app would store the access token in a database.
     $_SESSION['access-token'] = $accessToken;
 
-    echo renderHtmlPage("Authorized!",
-        "Auth complete, <a href='".htmlspecialchars(getPath(""))."'>click here</a> to browse.");
-}
-else if ($requestPath === "/dropbox-auth-unlink") {
+    echo renderHtmlPage('Authorized!',
+        "Auth complete, <a href='".htmlspecialchars(getPath(''))."'>click here</a> to browse.");
+} elseif ($requestPath === '/dropbox-auth-unlink') {
     // "Forget" the access token.
     unset($_SESSION['access-token']);
-    echo renderHtmlPage("Unlinked.",
-        "Go back <a href='".htmlspecialchars(getPath(""))."'>home</a>.");
-}
-else {
-    echo renderHtmlPage("Bad URL", "No handler for $requestPath");
+    echo renderHtmlPage('Unlinked.',
+        "Go back <a href='".htmlspecialchars(getPath(''))."'>home</a>.");
+} else {
+    echo renderHtmlPage('Bad URL', "No handler for $requestPath");
     exit;
 }
 
@@ -160,10 +151,12 @@ HTML;
     foreach ($entry['contents'] as $child) {
         $cp = $child['path'];
         $cn = basename($cp);
-        if ($child['is_dir']) $cn .= '/';
+        if ($child['is_dir']) {
+            $cn .= '/';
+        }
 
         $cp = htmlspecialchars($cp);
-        $link = getPath("?path=".htmlspecialchars($cp));
+        $link = getPath('?path='.htmlspecialchars($cp));
         $listing .= "<div><a style='text-decoration: none' href='$link'>$cn</a></div>";
     }
 
@@ -176,15 +169,14 @@ function getAppConfig()
 
     try {
         $appInfo = dbx\AppInfo::loadFromJsonFile($appInfoFile);
-    }
-    catch (dbx\AppInfoLoadException $ex) {
-        throw new Exception("Unable to load \"$appInfoFile\": " . $ex->getMessage());
+    } catch (dbx\AppInfoLoadException $ex) {
+        throw new Exception("Unable to load \"$appInfoFile\": ".$ex->getMessage());
     }
 
-    $clientIdentifier = "examples-web-file-browser";
+    $clientIdentifier = 'examples-web-file-browser';
     $userLocale = null;
 
-    return array($appInfo, $clientIdentifier, $userLocale);
+    return [$appInfo, $clientIdentifier, $userLocale];
 }
 
 function getClient()
@@ -195,27 +187,29 @@ function getClient()
 
     list($appInfo, $clientIdentifier, $userLocale) = getAppConfig();
     $accessToken = $_SESSION['access-token'];
+
     return new dbx\Client($accessToken, $clientIdentifier, $userLocale, $appInfo->getHost());
 }
 
 function getWebAuth()
 {
     list($appInfo, $clientIdentifier, $userLocale) = getAppConfig();
-    $redirectUri = getUrl("dropbox-auth-finish");
+    $redirectUri = getUrl('dropbox-auth-finish');
     $csrfTokenStore = new dbx\ArrayEntryStore($_SESSION, 'dropbox-auth-csrf-token');
+
     return new dbx\WebAuth($appInfo, $clientIdentifier, $redirectUri, $csrfTokenStore, $userLocale);
 }
 
 function renderFile($entry)
 {
     $metadataStr = htmlspecialchars(print_r($entry, true));
-    $downloadPath = getPath("download?path=".htmlspecialchars($entry['path']));
+    $downloadPath = getPath('download?path='.htmlspecialchars($entry['path']));
     $body = <<<HTML
         <pre>$metadataStr</pre>
         <a href="$downloadPath">Download this file</a>
 HTML;
 
-    return renderHtmlPage("File: ".$entry['path'], $body);
+    return renderHtmlPage('File: '.$entry['path'], $body);
 }
 
 function renderHtmlPage($title, $body)
@@ -233,7 +227,7 @@ function renderHtmlPage($title, $body)
 HTML;
 }
 
-function respondWithError($code, $title, $body = "")
+function respondWithError($code, $title, $body = '')
 {
     $proto = $_SERVER['SERVER_PROTOCOL'];
     header("$proto $code $title", true, $code);
@@ -243,21 +237,22 @@ function respondWithError($code, $title, $body = "")
 function getUrl($relative_path)
 {
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-        $scheme = "https";
+        $scheme = 'https';
     } else {
-        $scheme = "http";
+        $scheme = 'http';
     }
     $host = $_SERVER['HTTP_HOST'];
     $path = getPath($relative_path);
-    return $scheme."://".$host.$path;
+
+    return $scheme.'://'.$host.$path;
 }
 
 function getPath($relative_path)
 {
     if (PHP_SAPI === 'cli-server') {
-        return "/".$relative_path;
+        return '/'.$relative_path;
     } else {
-        return $_SERVER["SCRIPT_NAME"]."/".$relative_path;
+        return $_SERVER['SCRIPT_NAME'].'/'.$relative_path;
     }
 }
 
@@ -274,13 +269,12 @@ function init()
     if (PHP_SAPI === 'cli-server') {
         // For when we're running under PHP's built-in web server, do the routing here.
         return $_SERVER['SCRIPT_NAME'];
-    }
-    else {
+    } else {
         // For when we're running under CGI or mod_php.
         if (isset($_SERVER['PATH_INFO'])) {
             return $_SERVER['PATH_INFO'];
         } else {
-            return "/";
+            return '/';
         }
     }
 }
@@ -290,7 +284,7 @@ function launchBuiltInWebServer($argv)
     // The built-in web server is only available in PHP 5.4+.
     if (version_compare(PHP_VERSION, '5.4.0', '<')) {
         fprintf(STDERR,
-            "Unable to run example.  The version of PHP you used to run this script (".PHP_VERSION.")\n".
+            'Unable to run example.  The version of PHP you used to run this script ('.PHP_VERSION.")\n".
             "doesn't have a built-in web server.  You need PHP 5.4 or newer.\n".
             "\n".
             "You can still run this example if you have a web server that supports PHP 5.3.\n".
@@ -301,7 +295,7 @@ function launchBuiltInWebServer($argv)
     $php_file = $argv[0];
     if (count($argv) === 1) {
         $port = 5000;
-    } else if (count($argv) === 2) {
+    } elseif (count($argv) === 2) {
         $port = intval($argv[1]);
     } else {
         fprintf(STDERR,
@@ -311,12 +305,12 @@ function launchBuiltInWebServer($argv)
     }
 
     $host = "localhost:$port";
-    $cmd = escapeshellarg(PHP_BINARY)." -S ".$host." ".escapeshellarg($php_file);
-    $descriptors = array(
-        0 => array("pipe", "r"),  // Process' stdin.  We'll just close this right away.
+    $cmd = escapeshellarg(PHP_BINARY).' -S '.$host.' '.escapeshellarg($php_file);
+    $descriptors = [
+        0 => ['pipe', 'r'],  // Process' stdin.  We'll just close this right away.
         1 => STDOUT,              // Relay process' stdout to ours.
         2 => STDERR,              // Relay process' stderr to ours.
-    );
+    ];
     $proc = proc_open($cmd, $descriptors, $pipes);
     if ($proc === false) {
         fprintf(STDERR,

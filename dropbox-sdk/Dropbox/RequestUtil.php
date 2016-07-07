@@ -1,25 +1,26 @@
 <?php
+
 namespace Dropbox;
 
 if (!function_exists('curl_init')) {
-    throw new \Exception("The Dropbox SDK requires the cURL PHP extension, but it looks like you don't have it (couldn't find function \"curl_init\").  Library: \"" . __FILE__ . "\".");
+    throw new \Exception("The Dropbox SDK requires the cURL PHP extension, but it looks like you don't have it (couldn't find function \"curl_init\").  Library: \"".__FILE__.'".');
 }
 
 if (!function_exists('json_decode')) {
-    throw new \Exception("The Dropbox SDK requires the JSON PHP extension, but it looks like you don't have it (couldn't find function \"json_decode\").  Library: \"" . __FILE__ . "\".");
+    throw new \Exception("The Dropbox SDK requires the JSON PHP extension, but it looks like you don't have it (couldn't find function \"json_decode\").  Library: \"".__FILE__.'".');
 }
 
 // If mbstring.func_overload is set, it changes the behavior of the standard string functions in
 // ways that makes this library break.
-$mbstring_func_overload = ini_get("mbstring.func_overload");
+$mbstring_func_overload = ini_get('mbstring.func_overload');
 if ($mbstring_func_overload & 2 == 2) {
-    throw new \Exception("The Dropbox SDK doesn't work when mbstring.func_overload is set to overload the standard string functions (value = ".var_export($mbstring_func_overload, true).").  Library: \"" . __FILE__ . "\".");
+    throw new \Exception("The Dropbox SDK doesn't work when mbstring.func_overload is set to overload the standard string functions (value = ".var_export($mbstring_func_overload, true).').  Library: "'.__FILE__.'".');
 }
 
 if (strlen((string) PHP_INT_MAX) < 19) {
     // Looks like we're running on a 32-bit build of PHP.  This could cause problems because some of the numbers
     // we use (file sizes, quota, etc) can be larger than 32-bit ints can handle.
-    throw new \Exception("The Dropbox SDK uses 64-bit integers, but it looks like we're running on a version of PHP that doesn't support 64-bit integers (PHP_INT_MAX=" . ((string) PHP_INT_MAX) . ").  Library: \"" . __FILE__ . "\"");
+    throw new \Exception("The Dropbox SDK uses 64-bit integers, but it looks like we're running on a version of PHP that doesn't support 64-bit integers (PHP_INT_MAX=".((string) PHP_INT_MAX).').  Library: "'.__FILE__.'"');
 }
 
 /**
@@ -31,52 +32,55 @@ final class RequestUtil
      * @param string $userLocale
      * @param string $host
      * @param string $path
-     * @param array $params
+     * @param array  $params
+     *
      * @return string
      */
-    static function buildUrlForGetOrPut($userLocale, $host, $path, $params = null)
+    public static function buildUrlForGetOrPut($userLocale, $host, $path, $params = null)
     {
         $url = self::buildUri($host, $path);
-        $url .= "?locale=" . rawurlencode($userLocale);
+        $url .= '?locale='.rawurlencode($userLocale);
 
         if ($params !== null) {
             foreach ($params as $key => $value) {
                 Checker::argStringNonEmpty("key in 'params'", $key);
                 if ($value !== null) {
                     if (is_bool($value)) {
-                        $value = $value ? "true" : "false";
-                    }
-                    else if (is_int($value)) {
+                        $value = $value ? 'true' : 'false';
+                    } elseif (is_int($value)) {
                         $value = (string) $value;
-                    }
-                    else if (!is_string($value)) {
+                    } elseif (!is_string($value)) {
                         throw new \InvalidArgumentException("params['$key'] is not a string, int, or bool");
                     }
-                    $url .= "&" . rawurlencode($key) . "=" . rawurlencode($value);
+                    $url .= '&'.rawurlencode($key).'='.rawurlencode($value);
                 }
             }
         }
+
         return $url;
     }
 
     /**
      * @param string $host
      * @param string $path
+     *
      * @return string
      */
-    static function buildUri($host, $path)
+    public static function buildUri($host, $path)
     {
-        Checker::argStringNonEmpty("host", $host);
-        Checker::argStringNonEmpty("path", $path);
-        return "https://" . $host . "/" . $path;
+        Checker::argStringNonEmpty('host', $host);
+        Checker::argStringNonEmpty('path', $path);
+
+        return 'https://'.$host.'/'.$path;
     }
 
     /**
      * @param string $clientIdentifier
      * @param string $url
+     *
      * @return Curl
      */
-    static function mkCurl($clientIdentifier, $url)
+    public static function mkCurl($clientIdentifier, $url)
     {
         $curl = new Curl($url);
 
@@ -88,7 +92,7 @@ final class RequestUtil
 
         //$curl->set(CURLOPT_VERBOSE, true);  // For debugging.
         // TODO: Figure out how to encode clientIdentifier (urlencode?)
-        $curl->addHeader("User-Agent: ".$clientIdentifier." Dropbox-PHP-SDK");
+        $curl->addHeader('User-Agent: '.$clientIdentifier.' Dropbox-PHP-SDK');
 
         return $curl;
     }
@@ -97,12 +101,14 @@ final class RequestUtil
      * @param string $clientIdentifier
      * @param string $url
      * @param string $authHeaderValue
+     *
      * @return Curl
      */
-    static function mkCurlWithAuth($clientIdentifier, $url, $authHeaderValue)
+    public static function mkCurlWithAuth($clientIdentifier, $url, $authHeaderValue)
     {
         $curl = self::mkCurl($clientIdentifier, $url);
         $curl->addHeader("Authorization: $authHeaderValue");
+
         return $curl;
     }
 
@@ -110,55 +116,59 @@ final class RequestUtil
      * @param string $clientIdentifier
      * @param string $url
      * @param string $accessToken
+     *
      * @return Curl
      */
-    static function mkCurlWithOAuth($clientIdentifier, $url, $accessToken)
+    public static function mkCurlWithOAuth($clientIdentifier, $url, $accessToken)
     {
         return self::mkCurlWithAuth($clientIdentifier, $url, "Bearer $accessToken");
     }
 
-    static function buildPostBody($params)
+    public static function buildPostBody($params)
     {
-        if ($params === null) return "";
+        if ($params === null) {
+            return '';
+        }
 
-        $pairs = array();
+        $pairs = [];
         foreach ($params as $key => $value) {
             Checker::argStringNonEmpty("key in 'params'", $key);
             if ($value !== null) {
                 if (is_bool($value)) {
-                    $value = $value ? "true" : "false";
-                }
-                else if (is_int($value)) {
+                    $value = $value ? 'true' : 'false';
+                } elseif (is_int($value)) {
                     $value = (string) $value;
-                }
-                else if (!is_string($value)) {
+                } elseif (!is_string($value)) {
                     throw new \InvalidArgumentException("params['$key'] is not a string, int, or bool");
                 }
-                $pairs[] = rawurlencode($key) . "=" . rawurlencode((string) $value);
+                $pairs[] = rawurlencode($key).'='.rawurlencode((string) $value);
             }
         }
-        return implode("&", $pairs);
+
+        return implode('&', $pairs);
     }
 
     /**
-     * @param string $clientIdentifier
-     * @param string $accessToken
-     * @param string $userLocale
-     * @param string $host
-     * @param string $path
+     * @param string     $clientIdentifier
+     * @param string     $accessToken
+     * @param string     $userLocale
+     * @param string     $host
+     * @param string     $path
      * @param array|null $params
      *
-     * @return HttpResponse
-     *
      * @throws Exception
+     *
+     * @return HttpResponse
      */
-    static function doPost($clientIdentifier, $accessToken, $userLocale, $host, $path, $params = null)
+    public static function doPost($clientIdentifier, $accessToken, $userLocale, $host, $path, $params = null)
     {
-        Checker::argStringNonEmpty("accessToken", $accessToken);
+        Checker::argStringNonEmpty('accessToken', $accessToken);
 
         $url = self::buildUri($host, $path);
 
-        if ($params === null) $params = array();
+        if ($params === null) {
+            $params = [];
+        }
         $params['locale'] = $userLocale;
 
         $curl = self::mkCurlWithOAuth($clientIdentifier, $url, $accessToken);
@@ -166,28 +176,31 @@ final class RequestUtil
         $curl->set(CURLOPT_POSTFIELDS, self::buildPostBody($params));
 
         $curl->set(CURLOPT_RETURNTRANSFER, true);
+
         return $curl->exec();
     }
 
     /**
-     * @param string $clientIdentifier
-     * @param string $authHeaderValue
-     * @param string $userLocale
-     * @param string $host
-     * @param string $path
+     * @param string     $clientIdentifier
+     * @param string     $authHeaderValue
+     * @param string     $userLocale
+     * @param string     $host
+     * @param string     $path
      * @param array|null $params
      *
-     * @return HttpResponse
-     *
      * @throws Exception
+     *
+     * @return HttpResponse
      */
-    static function doPostWithSpecificAuth($clientIdentifier, $authHeaderValue, $userLocale, $host, $path, $params = null)
+    public static function doPostWithSpecificAuth($clientIdentifier, $authHeaderValue, $userLocale, $host, $path, $params = null)
     {
-        Checker::argStringNonEmpty("authHeaderValue", $authHeaderValue);
+        Checker::argStringNonEmpty('authHeaderValue', $authHeaderValue);
 
         $url = self::buildUri($host, $path);
 
-        if ($params === null) $params = array();
+        if ($params === null) {
+            $params = [];
+        }
         $params['locale'] = $userLocale;
 
         $curl = self::mkCurlWithAuth($clientIdentifier, $url, $authHeaderValue);
@@ -195,24 +208,25 @@ final class RequestUtil
         $curl->set(CURLOPT_POSTFIELDS, self::buildPostBody($params));
 
         $curl->set(CURLOPT_RETURNTRANSFER, true);
+
         return $curl->exec();
     }
 
     /**
-     * @param string $clientIdentifier
-     * @param string $accessToken
-     * @param string $userLocale
-     * @param string $host
-     * @param string $path
+     * @param string     $clientIdentifier
+     * @param string     $accessToken
+     * @param string     $userLocale
+     * @param string     $host
+     * @param string     $path
      * @param array|null $params
      *
-     * @return HttpResponse
-     *
      * @throws Exception
+     *
+     * @return HttpResponse
      */
-    static function doGet($clientIdentifier, $accessToken, $userLocale, $host, $path, $params = null)
+    public static function doGet($clientIdentifier, $accessToken, $userLocale, $host, $path, $params = null)
     {
-        Checker::argStringNonEmpty("accessToken", $accessToken);
+        Checker::argStringNonEmpty('accessToken', $accessToken);
 
         $url = self::buildUrlForGetOrPut($userLocale, $host, $path, $params);
 
@@ -225,19 +239,22 @@ final class RequestUtil
 
     /**
      * @param string $responseBody
-     * @return mixed
+     *
      * @throws Exception_BadResponse
+     *
+     * @return mixed
      */
-    static function parseResponseJson($responseBody)
+    public static function parseResponseJson($responseBody)
     {
         $obj = json_decode($responseBody, true, 10);
         if ($obj === null) {
             throw new Exception_BadResponse("Got bad JSON from server: $responseBody");
         }
+
         return $obj;
     }
 
-    static function unexpectedStatus($httpResponse)
+    public static function unexpectedStatus($httpResponse)
     {
         $sc = $httpResponse->statusCode;
 
@@ -247,29 +264,36 @@ final class RequestUtil
             $message .= "\n".$httpResponse->body;
         }
 
-        if ($sc === 400) return new Exception_BadRequest($message);
-        if ($sc === 401) return new Exception_InvalidAccessToken($message);
-        if ($sc === 500 || $sc === 502) return new Exception_ServerError($message);
-        if ($sc === 503) return new Exception_RetryLater($message);
+        if ($sc === 400) {
+            return new Exception_BadRequest($message);
+        }
+        if ($sc === 401) {
+            return new Exception_InvalidAccessToken($message);
+        }
+        if ($sc === 500 || $sc === 502) {
+            return new Exception_ServerError($message);
+        }
+        if ($sc === 503) {
+            return new Exception_RetryLater($message);
+        }
 
         return new Exception_BadResponseCode("Unexpected $message", $sc);
     }
 
     /**
-     * @param int $maxRetries
-     *    The number of times to retry it the action if it fails with one of the transient
-     *    API errors.  A value of 1 means we'll try the action once and if it fails, we
-     *    will retry once.
-     *
+     * @param int      $maxRetries
+     *                             The number of times to retry it the action if it fails with one of the transient
+     *                             API errors.  A value of 1 means we'll try the action once and if it fails, we
+     *                             will retry once.
      * @param callable $action
-     *    The the action you want to retry.
+     *                             The the action you want to retry.
      *
      * @return mixed
-     *    Whatever is returned by the $action callable.
+     *               Whatever is returned by the $action callable.
      */
-    static function runWithRetry($maxRetries, $action)
+    public static function runWithRetry($maxRetries, $action)
     {
-        Checker::argNat("maxRetries", $maxRetries);
+        Checker::argNat('maxRetries', $maxRetries);
 
         $retryDelay = 1;
         $numRetries = 0;
@@ -280,22 +304,21 @@ final class RequestUtil
             // These exception types are the ones we think are possibly transient errors.
             catch (Exception_NetworkIO $ex) {
                 $savedEx = $ex;
-            }
-            catch (Exception_ServerError $ex) {
+            } catch (Exception_ServerError $ex) {
                 $savedEx = $ex;
-            }
-            catch (Exception_RetryLater $ex) {
+            } catch (Exception_RetryLater $ex) {
                 $savedEx = $ex;
             }
 
             // We maxed out our retries.  Propagate the last exception we got.
-            if ($numRetries >= $maxRetries) throw $savedEx;
+            if ($numRetries >= $maxRetries) {
+                throw $savedEx;
+            }
 
             $numRetries++;
             sleep($retryDelay);
             $retryDelay *= 2;  // Exponential back-off.
         }
-        throw new \RuntimeException("unreachable");
+        throw new \RuntimeException('unreachable');
     }
-
 }

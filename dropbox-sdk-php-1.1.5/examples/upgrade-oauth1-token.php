@@ -1,10 +1,10 @@
 #!/usr/bin/env php
 <?php
 
-require_once __DIR__."/../lib/Dropbox/strict.php";
+require_once __DIR__.'/../lib/Dropbox/strict.php';
 
-if (PHP_SAPI !== "cli") {
-    throw new \Exception("This program was meant to be run from the command-line and not as a web app.  Bad value for PHP_SAPI.  Expected \"cli\", given \"".PHP_SAPI."\".");
+if (PHP_SAPI !== 'cli') {
+    throw new \Exception('This program was meant to be run from the command-line and not as a web app.  Bad value for PHP_SAPI.  Expected "cli", given "'.PHP_SAPI.'".');
 }
 
 // NOTE: You should be using Composer's global autoloader.  But just so these examples
@@ -18,35 +18,33 @@ if ($argc === 1) {
     die;
 }
 
-$remainingArgs = array();
+$remainingArgs = [];
 $optionsAllowed = true;
 $disable = false;
 for ($i = 1; $i < $argc; $i++) {
     $arg = $argv[$i];
-    if ($optionsAllowed && strpos($arg, "-") === 0) {
-        if ($arg === "--") {
+    if ($optionsAllowed && strpos($arg, '-') === 0) {
+        if ($arg === '--') {
             $optionsAllowed = false;
             continue;
         }
-        if ($arg === "--disable") {
+        if ($arg === '--disable') {
             if ($disable) {
                 fwrite(STDERR, "Option \"--disable\" used more than once.\n");
                 die;
             }
             $disable = true;
-        }
-        else {
+        } else {
             fwrite(STDERR, "Unrecognized option \"$arg\".\n");
             fwrite(STDERR, "Run with no arguments for help\n");
         }
-    }
-    else {
+    } else {
         array_push($remainingArgs, $arg);
     }
 }
 
 if (count($remainingArgs) !== 3) {
-    fwrite(STDERR, "Expecting exactly 3 non-option arguments, got ".count($remainingArgs)."\n");
+    fwrite(STDERR, 'Expecting exactly 3 non-option arguments, got '.count($remainingArgs)."\n");
     fwrite(STDERR, "Run with no arguments for help\n");
     die;
 }
@@ -56,23 +54,22 @@ $oauth1AccessToken = new dbx\OAuth1AccessToken($remainingArgs[1], $remainingArgs
 
 try {
     list($appInfoJson, $appInfo) = dbx\AppInfo::loadFromJsonFileWithRaw($appInfoFile);
-}
-catch (dbx\AppInfoLoadException $ex) {
-    fwrite(STDERR, "Error loading <app-info-file>: ".$ex->getMessage()."\n");
+} catch (dbx\AppInfoLoadException $ex) {
+    fwrite(STDERR, 'Error loading <app-info-file>: '.$ex->getMessage()."\n");
     die;
 }
 
 // Get an OAuth 2 access token.
 
-$upgrader = new dbx\OAuth1Upgrader($appInfo, "examples-authorize", "en");
+$upgrader = new dbx\OAuth1Upgrader($appInfo, 'examples-authorize', 'en');
 $oauth2AccessToken = $upgrader->createOAuth2AccessToken($oauth1AccessToken);
 echo "OAuth 2 access token obtained.\n";
 
 // Write out auth JSON.
 
-$authArr = array(
-    "access_token" => $oauth2AccessToken,
-);
+$authArr = [
+    'access_token' => $oauth2AccessToken,
+];
 
 if (array_key_exists('host', $appInfoJson)) {
     $authArr['host'] = $appInfoJson['host'];
@@ -91,7 +88,8 @@ if ($disable) {
     echo "OAuth 1 access token disabled.\n";
 }
 
-function echoHelp($command) {
+function echoHelp($command)
+{
     echo "\n";
     echo "Usage: $command <app-info-file> <oa1-access-token-key> <oa1-access-token-secret>\n";
     echo "\n";

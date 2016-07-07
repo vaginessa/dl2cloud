@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -12,7 +13,10 @@ final class AppInfo
      *
      * @return string
      */
-    function getKey() { return $this->key; }
+    public function getKey()
+    {
+        return $this->key;
+    }
 
     /** @var string */
     private $key;
@@ -27,7 +31,10 @@ final class AppInfo
      *
      * @return string
      */
-    function getSecret() { return $this->secret; }
+    public function getSecret()
+    {
+        return $this->secret;
+    }
 
     /** @var string */
     private $secret;
@@ -40,7 +47,10 @@ final class AppInfo
      *
      * @internal
      */
-    function getHost() { return $this->host; }
+    public function getHost()
+    {
+        return $this->host;
+    }
 
     /** @var Host */
     private $host;
@@ -49,11 +59,11 @@ final class AppInfo
      * Constructor.
      *
      * @param string $key
-     *    See {@link getKey()}
+     *                       See {@link getKey()}
      * @param string $secret
-     *    See {@link getSecret()}
+     *                       See {@link getSecret()}
      */
-    function __construct($key, $secret)
+    public function __construct($key, $secret)
     {
         self::checkKeyArg($key);
         self::checkSecretArg($secret);
@@ -67,7 +77,7 @@ final class AppInfo
         $host = null;
         if (\func_num_args() == 3) {
             $host = \func_get_arg(2);
-            Host::checkArgOrNull("host", $host);
+            Host::checkArgOrNull('host', $host);
         }
         if ($host === null) {
             $host = Host::getDefault();
@@ -81,15 +91,16 @@ final class AppInfo
      * for details about what this file should look like.
      *
      * @param string $path
-     *    Path to a JSON file
-     *
-     * @return AppInfo
+     *                     Path to a JSON file
      *
      * @throws AppInfoLoadException
+     *
+     * @return AppInfo
      */
-    static function loadFromJsonFile($path)
+    public static function loadFromJsonFile($path)
     {
         list($rawJson, $appInfo) = self::loadFromJsonFileWithRaw($path);
+
         return $appInfo;
     }
 
@@ -99,17 +110,17 @@ final class AppInfo
      * for details about what this file should look like.
      *
      * @param string $path
-     *    Path to a JSON file
-     *
-     * @return array
-     *    A list of two items.  The first is a PHP array representation of the raw JSON, the second
-     *    is an AppInfo object that is the parsed version of the JSON.
+     *                     Path to a JSON file
      *
      * @throws AppInfoLoadException
      *
+     * @return array
+     *               A list of two items.  The first is a PHP array representation of the raw JSON, the second
+     *               is an AppInfo object that is the parsed version of the JSON.
+     *
      * @internal
      */
-    static function loadFromJsonFileWithRaw($path)
+    public static function loadFromJsonFileWithRaw($path)
     {
         if (!file_exists($path)) {
             throw new AppInfoLoadException("File doesn't exist: \"$path\"");
@@ -124,7 +135,7 @@ final class AppInfo
 
         $appInfo = self::loadFromJson($jsonArr);
 
-        return array($jsonArr, $appInfo);
+        return [$jsonArr, $appInfo];
     }
 
     /**
@@ -133,17 +144,17 @@ final class AppInfo
      *
      * @param array $jsonArr Output from json_decode($str, true)
      *
-     * @return AppInfo
-     *
      * @throws AppInfoLoadException
+     *
+     * @return AppInfo
      */
-    static function loadFromJson($jsonArr)
+    public static function loadFromJson($jsonArr)
     {
         if (!is_array($jsonArr)) {
-            throw new AppInfoLoadException("Expecting JSON object, got something else");
+            throw new AppInfoLoadException('Expecting JSON object, got something else');
         }
 
-        $requiredKeys = array("key", "secret");
+        $requiredKeys = ['key', 'secret'];
         foreach ($requiredKeys as $key) {
             if (!array_key_exists($key, $jsonArr)) {
                 throw new AppInfoLoadException("Missing field \"$key\"");
@@ -155,8 +166,8 @@ final class AppInfo
         }
 
         // Check app_key and app_secret
-        $appKey = $jsonArr["key"];
-        $appSecret = $jsonArr["secret"];
+        $appKey = $jsonArr['key'];
+        $appSecret = $jsonArr['secret'];
 
         $tokenErr = self::getTokenPartError($appKey);
         if (!is_null($tokenErr)) {
@@ -171,11 +182,10 @@ final class AppInfo
         // Check for the optional 'host' field
         if (!array_key_exists('host', $jsonArr)) {
             $host = null;
-        }
-        else {
-            $baseHost = $jsonArr["host"];
+        } else {
+            $baseHost = $jsonArr['host'];
             if (!is_string($baseHost)) {
-                throw new AppInfoLoadException("Optional field \"host\" must be a string");
+                throw new AppInfoLoadException('Optional field "host" must be a string');
             }
 
             $api = "api-$baseHost";
@@ -185,17 +195,19 @@ final class AppInfo
             $host = new Host($api, $content, $web);
         }
 
-        return new AppInfo($appKey, $appSecret, $host);
+        return new self($appKey, $appSecret, $host);
     }
 
     /**
-     * Use this to check that a function argument is of type <code>AppInfo</code>
+     * Use this to check that a function argument is of type <code>AppInfo</code>.
      *
      * @internal
      */
-    static function checkArg($argName, $argValue)
+    public static function checkArg($argName, $argValue)
     {
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 
     /**
@@ -204,35 +216,48 @@ final class AppInfo
      *
      * @internal
      */
-    static function checkArgOrNull($argName, $argValue)
+    public static function checkArgOrNull($argName, $argValue)
     {
-        if ($argValue === null) return;
-        if (!($argValue instanceof self)) Checker::throwError($argName, $argValue, __CLASS__);
+        if ($argValue === null) {
+            return;
+        }
+        if (!($argValue instanceof self)) {
+            Checker::throwError($argName, $argValue, __CLASS__);
+        }
     }
 
     /** @internal */
-    static function getTokenPartError($s)
+    public static function getTokenPartError($s)
     {
-        if ($s === null) return "can't be null";
-        if (strlen($s) === 0) return "can't be empty";
-        if (strstr($s, ' ')) return "can't contain a space";
-        return null;  // 'null' means "no error"
+        if ($s === null) {
+            return "can't be null";
+        }
+        if (strlen($s) === 0) {
+            return "can't be empty";
+        }
+        if (strstr($s, ' ')) {
+            return "can't contain a space";
+        }
+          // 'null' means "no error"
     }
 
     /** @internal */
-    static function checkKeyArg($key)
+    public static function checkKeyArg($key)
     {
         $error = self::getTokenPartError($key);
-        if ($error === null) return;
+        if ($error === null) {
+            return;
+        }
         throw new \InvalidArgumentException("Bad 'key': \"$key\": $error.");
     }
 
     /** @internal */
-    static function checkSecretArg($secret)
+    public static function checkSecretArg($secret)
     {
         $error = self::getTokenPartError($secret);
-        if ($error === null) return;
+        if ($error === null) {
+            return;
+        }
         throw new \InvalidArgumentException("Bad 'secret': \"$secret\": $error.");
     }
-
 }

@@ -1,8 +1,9 @@
 <?php
+
 namespace Dropbox;
 
 /**
- * See: {@link RootCertificates::useExternalPaths()}
+ * See: {@link RootCertificates::useExternalPaths()}.
  */
 class RootCertificates
 {
@@ -20,11 +21,11 @@ class RootCertificates
      * information.  But this won't work if this SDK is running from within a PHAR because
      * cURL won't read files that are packaged in a PHAR.
      */
-    static function useExternalPaths()
+    public static function useExternalPaths()
     {
         if (!self::$useExternalFile and self::$paths !== null) {
-            throw new \Exception("You called \"useExternalFile\" too late.  The SDK already used the root ".
-                                 "certificate file (probably to make an API call).");
+            throw new \Exception('You called "useExternalFile" too late.  The SDK already used the root '.
+                                 'certificate file (probably to make an API call).');
         }
 
         self::$useExternalFile = true;
@@ -36,9 +37,9 @@ class RootCertificates
      * @internal
      *
      * @return string[]
-     *    A tuple of (rootCertsFilePath, rootCertsFolderPath).  To be used with cURL options CAINFO and CAPATH.
+     *                  A tuple of (rootCertsFilePath, rootCertsFolderPath).  To be used with cURL options CAINFO and CAPATH.
      */
-    static function getPaths()
+    public static function getPaths()
     {
         if (self::$paths === null) {
             if (self::$useExternalFile) {
@@ -46,19 +47,17 @@ class RootCertificates
                     $baseFolder = sys_get_temp_dir();
                     $file = self::createExternalCaFile($baseFolder);
                     $folder = self::createExternalCaFolder($baseFolder);
+                } catch (\Exception $ex) {
+                    throw new \Exception('Unable to create external root certificate file and folder: '.$ex->getMessage());
                 }
-                catch (\Exception $ex) {
-                    throw new \Exception("Unable to create external root certificate file and folder: ".$ex->getMessage());
-                }
-            }
-            else {
+            } else {
                 if (substr(__DIR__, 0, 7) === 'phar://') {
-                    throw new \Exception("The code appears to be running in a PHAR.  You need to call \\Dropbox\\RootCertificates\\useExternalPaths() before making any API calls.");
+                    throw new \Exception('The code appears to be running in a PHAR.  You need to call \\Dropbox\\RootCertificates\\useExternalPaths() before making any API calls.');
                 }
                 $file = __DIR__.self::$originalPath;
                 $folder = \dirname($file);
             }
-            self::$paths = array($file, $folder);
+            self::$paths = [$file, $folder];
         }
 
         return self::$paths;
@@ -75,9 +74,9 @@ class RootCertificates
 
         // This process isn't atomic, so give it three tries.
         for ($i = 0; $i < 3; $i++) {
-            $path = \tempnam($baseFolder, "dropbox-php-sdk-trusted-certs-empty-dir");
+            $path = \tempnam($baseFolder, 'dropbox-php-sdk-trusted-certs-empty-dir');
             if ($path === false) {
-                throw new \Exception("Couldn't create temp file in folder ".Util::q($baseFolder).".");
+                throw new \Exception("Couldn't create temp file in folder ".Util::q($baseFolder).'.');
             }
             if (!\unlink($path)) {
                 throw new \Exception("Couldn't remove temp file to make way for temp dir: ".Util::q($path));
@@ -87,13 +86,14 @@ class RootCertificates
                 // Someone snuck in between the unlink() and the mkdir() and stole our path.
                 throw new \Exception("Couldn't create temp dir: ".Util::q($path));
             }
-            \register_shutdown_function(function() use ($path) {
+            \register_shutdown_function(function () use ($path) {
                 \rmdir($path);
             });
+
             return $path;
         }
 
-        throw new \Exception("Unable to create temp dir in ".Util::q($baseFolder).", there's always something in the way.");
+        throw new \Exception('Unable to create temp dir in '.Util::q($baseFolder).", there's always something in the way.");
     }
 
     /**
@@ -103,11 +103,11 @@ class RootCertificates
      */
     private static function createExternalCaFile($baseFolder)
     {
-        $path = \tempnam($baseFolder, "dropbox-php-sdk-trusted-certs");
+        $path = \tempnam($baseFolder, 'dropbox-php-sdk-trusted-certs');
         if ($path === false) {
-            throw new \Exception("Couldn't create temp file in folder ".Util::q($baseFolder).".");
+            throw new \Exception("Couldn't create temp file in folder ".Util::q($baseFolder).'.');
         }
-        \register_shutdown_function(function() use ($path) {
+        \register_shutdown_function(function () use ($path) {
             \unlink($path);
         });
 
@@ -124,21 +124,21 @@ class RootCertificates
      */
     private static function copyInto($src, $dest)
     {
-        $srcFd = \fopen($src, "r");
+        $srcFd = \fopen($src, 'r');
         if ($srcFd === false) {
-            throw new \Exception("Couldn't open " . Util::q($src) . " for reading.");
+            throw new \Exception("Couldn't open ".Util::q($src).' for reading.');
         }
-        $destFd = \fopen($dest, "w");
+        $destFd = \fopen($dest, 'w');
         if ($destFd === false) {
             \fclose($srcFd);
-            throw new \Exception("Couldn't open " . Util::q($dest) . " for writing.");
+            throw new \Exception("Couldn't open ".Util::q($dest).' for writing.');
         }
 
         \stream_copy_to_stream($srcFd, $destFd);
 
         fclose($srcFd);
         if (!\fclose($destFd)) {
-            throw new \Exception("Error closing file ".Util::q($dest).".");
+            throw new \Exception('Error closing file '.Util::q($dest).'.');
         }
     }
 }

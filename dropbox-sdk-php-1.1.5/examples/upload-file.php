@@ -7,10 +7,10 @@ use \Dropbox as dbx;
 /* @var dbx\Client $client */
 /* @var string $sourcePath */
 /* @var string $dropboxPath */
-list($client, $sourcePath, $dropboxPath) = parseArgs("upload-file", $argv, array(
-        array("source-path", "A path to a local file or a URL of a resource."),
-        array("dropbox-path", "The path (on Dropbox) to save the file to."),
-    ));
+list($client, $sourcePath, $dropboxPath) = parseArgs('upload-file', $argv, [
+        ['source-path', 'A path to a local file or a URL of a resource.'],
+        ['dropbox-path', 'The path (on Dropbox) to save the file to.'],
+    ]);
 
 $pathError = dbx\Path::findErrorNonRoot($dropboxPath);
 if ($pathError !== null) {
@@ -23,7 +23,7 @@ if (\stream_is_local($sourcePath)) {
     $size = \filesize($sourcePath);
 }
 
-$fp = fopen($sourcePath, "rb");
+$fp = fopen($sourcePath, 'rb');
 $metadata = $client->uploadFile($dropboxPath, dbx\WriteMode::add(), $fp, $size);
 fclose($fp);
 

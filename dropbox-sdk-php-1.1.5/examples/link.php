@@ -6,9 +6,9 @@ use \Dropbox as dbx;
 
 /* @var dbx\Client $client */
 /* @var string $dropboxPath */
-list($client, $dropboxPath) = parseArgs("link", $argv, array(
-        array("dropbox-path", "The path (on Dropbox) to create a link for."),
-    ));
+list($client, $dropboxPath) = parseArgs('link', $argv, [
+        ['dropbox-path', 'The path (on Dropbox) to create a link for.'],
+    ]);
 
 $pathError = dbx\Path::findError($dropboxPath);
 if ($pathError !== null) {
@@ -18,4 +18,4 @@ if ($pathError !== null) {
 
 $link = $client->createShareableLink($dropboxPath);
 
-print($link."\n");
+echo $link."\n";

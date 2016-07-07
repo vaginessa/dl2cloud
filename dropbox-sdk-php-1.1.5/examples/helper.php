@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__."/../lib/Dropbox/strict.php";
+require_once __DIR__.'/../lib/Dropbox/strict.php';
 
-if (PHP_SAPI !== "cli") {
-    throw new \Exception("This program was meant to be run from the command-line and not as a web app.  Bad value for PHP_SAPI.  Expected \"cli\", given \"".PHP_SAPI."\".");
+if (PHP_SAPI !== 'cli') {
+    throw new \Exception('This program was meant to be run from the command-line and not as a web app.  Bad value for PHP_SAPI.  Expected "cli", given "'.PHP_SAPI.'".');
 }
 
 // NOTE: You should be using Composer's global autoloader.  But just so these examples
@@ -20,8 +20,12 @@ use \Dropbox as dbx;
  */
 function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams = null)
 {
-    if ($requiredParams === null) $requiredParams = array();
-    if ($optionalParams === null) $optionalParams = array();
+    if ($requiredParams === null) {
+        $requiredParams = [];
+    }
+    if ($optionalParams === null) {
+        $optionalParams = [];
+    }
 
     $minArgs = 1 + count($requiredParams);
     $maxArgs = $minArgs + count($optionalParams);
@@ -32,16 +36,16 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
     // If no args.  Print help message.
     if (count($args) === 0) {
         // Construct the param list for the "Usage" line.
-        $paramSpec = "";
+        $paramSpec = '';
         foreach ($requiredParams as $p) {
-            $paramSpec .= " ".$p[0];
+            $paramSpec .= ' '.$p[0];
         }
         if (count($optionalParams) > 0) {
-            $paramSpec .= " [";
+            $paramSpec .= ' [';
             foreach ($optionalParams as $p) {
-                $paramSpec .= " ".$p[0];
+                $paramSpec .= ' '.$p[0];
             }
-            $paramSpec .= " ]";
+            $paramSpec .= ' ]';
         }
 
         echo "\n";
@@ -49,9 +53,9 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
         echo "\n";
 
         // Print out help for each param.
-        printParamHelp("auth-file",
-            "A file with authorization information.  You can use the \"examples/authorize.php\" ".
-            "program to generate this file.");
+        printParamHelp('auth-file',
+            'A file with authorization information.  You can use the "examples/authorize.php" '.
+            'program to generate this file.');
         foreach (array_merge($requiredParams, $optionalParams) as $param) {
             list($paramName, $paramDesc) = $param;
             printParamHelp($paramName, $paramDesc);
@@ -69,29 +73,29 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
     $locale = null;
 
     // Parse out the option args.
-    $nonOptionArgs = array();
+    $nonOptionArgs = [];
     for ($i = 0; $i < count($args); $i++) {
         $arg = $args[$i];
-        if ($arg === "-" || $arg === "--") {
+        if ($arg === '-' || $arg === '--') {
             // No more options.  Put the rest on the list of non-option args.
             for ($i++; $i < count($args); $i++) {
                 \array_push($nonOptionArgs, $args[$i]);
             }
             break;
         }
-        if (startsWith($arg, "-")) {
-            if (startsWith($arg, "--")) {
+        if (startsWith($arg, '-')) {
+            if (startsWith($arg, '--')) {
                 $option = substr($arg, 2);
             } else {
                 $option = substr($arg, 1);
             }
-            $equalPos = \strpos($option, "=");
+            $equalPos = \strpos($option, '=');
             if ($equalPos === false) {
                 $optionName = $option;
                 $optionArg = null;
             } else {
                 $optionName = \substr($option, 0, $equalPos);
-                $optionArg = \substr($option, $equalPos+1);
+                $optionArg = \substr($option, $equalPos + 1);
             }
 
             if ($optionName === 'locale') {
@@ -106,14 +110,12 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
                     fwrite(STDERR, "Run with no arguments for help.\n");
                     die;
                 }
-            }
-            else {
+            } else {
                 fwrite(STDERR, "Unknown option: \"$optionName\".\n");
                 fwrite(STDERR, "Run with no arguments for help.\n");
                 die;
             }
-        }
-        else {
+        } else {
             \array_push($nonOptionArgs, $arg);
         }
     }
@@ -127,14 +129,12 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
             fwrite(STDERR, "Run with no arguments for help.\n");
             die;
         }
-    }
-    else {
+    } else {
         if ($givenArgs < $minArgs) {
             fwrite(STDERR, "Expecting at least $minArgs non-option arguments, got $givenArgs.\n");
             fwrite(STDERR, "Run with no arguments for help.\n");
             die;
-        }
-        else if ($givenArgs > $maxArgs) {
+        } elseif ($givenArgs > $maxArgs) {
             fwrite(STDERR, "Expecting at most $maxArgs non-option arguments, got $givenArgs.\n");
             fwrite(STDERR, "Run with no arguments for help.\n");
             die;
@@ -143,9 +143,8 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
 
     try {
         list($accessToken, $host) = dbx\AuthInfo::loadFromJsonFile($nonOptionArgs[0]);
-    }
-    catch (dbx\AuthInfoLoadException $ex) {
-        fwrite(STDERR, "Error loading <auth-file>: ".$ex->getMessage()."\n");
+    } catch (dbx\AuthInfoLoadException $ex) {
+        fwrite(STDERR, 'Error loading <auth-file>: '.$ex->getMessage()."\n");
         die;
     }
 
@@ -159,12 +158,13 @@ function parseArgs($exampleName, $argv, $requiredParams = null, $optionalParams 
 
     // Return the args they need, plus the $client object in front.
     array_unshift($ret, $client);
+
     return $ret;
 }
 
 function startsWith($s, $prefix)
 {
-    return (\substr_compare($s, $prefix, 0, count($prefix)) === 0);
+    return \substr_compare($s, $prefix, 0, count($prefix)) === 0;
 }
 
 function printParamHelp($paramName, $paramDesc)

@@ -13,9 +13,9 @@ class SSLTester
      * is HTML-safe.
      *
      * @return bool
-     *    Returns <code>true</code> if all the tests passed.
+     *              Returns <code>true</code> if all the tests passed.
      */
-    static function test()
+    public static function test()
     {
         $hostOs = php_uname('s').' '.php_uname('r');
         $phpVersion = phpversion();
@@ -32,18 +32,18 @@ class SSLTester
         echo "- cURL SSL backend: $curlSslBackend\n";
 
         echo "Basic SSL tests\n";
-        $basicFailures = self::testMulti(array(
-            array("www.dropbox.com", 'testAllowed'),
-            array("www.digicert.com", 'testAllowed'),
-            array("www.v.dropbox.com", 'testHostnameMismatch'),
-            array("testssl-expire.disig.sk", 'testUntrustedCert'),
-        ));
+        $basicFailures = self::testMulti([
+            ['www.dropbox.com', 'testAllowed'],
+            ['www.digicert.com', 'testAllowed'],
+            ['www.v.dropbox.com', 'testHostnameMismatch'],
+            ['testssl-expire.disig.sk', 'testUntrustedCert'],
+        ]);
 
         echo "Pinned certificate tests\n";
-        $pinnedCertFailures = self::testMulti(array(
-            array("www.verisign.com", 'testUntrustedCert'),
-            array("www.globalsign.fr", 'testUntrustedCert'),
-        ));
+        $pinnedCertFailures = self::testMulti([
+            ['www.verisign.com', 'testUntrustedCert'],
+            ['www.globalsign.fr', 'testUntrustedCert'],
+        ]);
 
         if ($basicFailures) {
             echo "-----------------------------------------------------------------------------\n";
@@ -51,9 +51,9 @@ class SSLTester
             echo "Your app's communication with the Dropbox API servers can be viewed and\n";
             echo "manipulated by others.  Try upgrading your version of PHP.\n";
             echo "-----------------------------------------------------------------------------\n";
+
             return false;
-        }
-        else if ($pinnedCertFailures) {
+        } elseif ($pinnedCertFailures) {
             echo "-----------------------------------------------------------------------------\n";
             echo "WARNING: Your PHP installation's cURL module doesn't support SSL certificate\n";
             echo "pinning, which is an important security feature of the Dropbox SDK.\n";
@@ -65,9 +65,9 @@ class SSLTester
             echo "More information on SSL certificate pinning:\n";
             echo "https://www.owasp.org/index.php/Certificate_and_Public_Key_Pinning#What_Is_Pinning.3F\n";
             echo "-----------------------------------------------------------------------------\n";
+
             return false;
-        }
-        else {
+        } else {
             return true;
         }
     }
@@ -78,7 +78,7 @@ class SSLTester
         foreach ($tests as $test) {
             list($host, $testType) = $test;
 
-            echo " - ".str_pad("$testType ($host) ", 50, ".");
+            echo ' - '.str_pad("$testType ($host) ", 50, '.');
             $url = "https://$host/";
             $passed = self::$testType($url);
             if ($passed) {
@@ -88,14 +88,16 @@ class SSLTester
                 $anyFailed = true;
             }
         }
+
         return $anyFailed;
     }
 
     private static function testAllowed($url)
     {
-        $curl = RequestUtil::mkCurl("test-ssl", $url);
+        $curl = RequestUtil::mkCurl('test-ssl', $url);
         $curl->set(CURLOPT_RETURNTRANSFER, true);
         $curl->exec();
+
         return true;
     }
 
@@ -111,18 +113,18 @@ class SSLTester
 
     private static function testDisallowed($url, $expectedExceptionMessage)
     {
-        $curl = RequestUtil::mkCurl("test-ssl", $url);
+        $curl = RequestUtil::mkCurl('test-ssl', $url);
         $curl->set(CURLOPT_RETURNTRANSFER, true);
         try {
             $curl->exec();
-        }
-        catch (Exception_NetworkIO $ex) {
+        } catch (Exception_NetworkIO $ex) {
             if (strpos($ex->getMessage(), $expectedExceptionMessage) == 0) {
                 return true;
             } else {
                 throw $ex;
             }
         }
+
         return false;
     }
 }

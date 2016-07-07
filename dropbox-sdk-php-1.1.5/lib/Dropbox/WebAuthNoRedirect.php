@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -47,11 +48,11 @@ class WebAuthNoRedirect extends WebAuthBase
      * See <a href="https://www.dropbox.com/developers/core/docs#oa2-authorize">/oauth2/authorize</a>.
      *
      * @return string
-     *    An authorization URL.  Direct the user's browser to this URL.  After the user decides
-     *    whether to authorize your app or not, Dropbox will show the user an authorization code,
-     *    which the user will need to give to your application (e.g. via copy/paste).
+     *                An authorization URL.  Direct the user's browser to this URL.  After the user decides
+     *                whether to authorize your app or not, Dropbox will show the user an authorization code,
+     *                which the user will need to give to your application (e.g. via copy/paste).
      */
-    function start()
+    public function start()
     {
         return $this->_getAuthorizeUrl(null, null);
     }
@@ -64,19 +65,20 @@ class WebAuthNoRedirect extends WebAuthBase
      * See <a href="https://www.dropbox.com/developers/core/docs#oa2-token">/oauth2/token</a>.
      *
      * @param string $code
-     *    The authorization code provided to the user by Dropbox.
-     *
-     * @return array
-     *    A <code>list(string $accessToken, string $userId)</code>, where
-     *    <code>$accessToken</code> can be used to construct a {@link Client} and
-     *    <code>$userId</code> is the user ID of the user's Dropbox account.
+     *                     The authorization code provided to the user by Dropbox.
      *
      * @throws Exception
-     *    Thrown if there's an error getting the access token from Dropbox.
+     *                   Thrown if there's an error getting the access token from Dropbox.
+     *
+     * @return array
+     *               A <code>list(string $accessToken, string $userId)</code>, where
+     *               <code>$accessToken</code> can be used to construct a {@link Client} and
+     *               <code>$userId</code> is the user ID of the user's Dropbox account.
      */
-    function finish($code)
+    public function finish($code)
     {
-        Checker::argStringNonEmpty("code", $code);
+        Checker::argStringNonEmpty('code', $code);
+
         return $this->_finish($code, null);
     }
 }

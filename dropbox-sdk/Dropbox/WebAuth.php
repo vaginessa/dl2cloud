@@ -1,8 +1,9 @@
 <?php
+
 namespace Dropbox;
 
 /**
- * OAuth 2 "authorization code" flow.  (This SDK does not support the "token" flow.)
+ * OAuth 2 "authorization code" flow.  (This SDK does not support the "token" flow.).
  *
  * Use {@link WebAuth::start()} and {@link WebAuth::finish()} to guide your
  * user through the process of giving your app access to their Dropbox account.
@@ -61,7 +62,6 @@ namespace Dropbox;
  * // We can now use $accessToken to make API requests.
  * $client = dbx\Client($accessToken, ...);
  * </code>
- *
  */
 class WebAuth extends WebAuthBase
 {
@@ -74,7 +74,10 @@ class WebAuth extends WebAuthBase
      *
      * @return string
      */
-    function getRedirectUri() { return $this->redirectUri; }
+    public function getRedirectUri()
+    {
+        return $this->redirectUri;
+    }
 
     /** @var string */
     private $redirectUri;
@@ -90,7 +93,10 @@ class WebAuth extends WebAuthBase
      *
      * @return ValueStore
      */
-    function getCsrfTokenStore() { return $this->csrfTokenStore; }
+    public function getCsrfTokenStore()
+    {
+        return $this->csrfTokenStore;
+    }
 
     /** @var object */
     private $csrfTokenStore;
@@ -98,22 +104,22 @@ class WebAuth extends WebAuthBase
     /**
      * Constructor.
      *
-     * @param AppInfo $appInfo
-     *     See {@link getAppInfo()}
-     * @param string $clientIdentifier
-     *     See {@link getClientIdentifier()}
-     * @param null|string $redirectUri
-     *     See {@link getRedirectUri()}
+     * @param AppInfo         $appInfo
+     *                                          See {@link getAppInfo()}
+     * @param string          $clientIdentifier
+     *                                          See {@link getClientIdentifier()}
+     * @param null|string     $redirectUri
+     *                                          See {@link getRedirectUri()}
      * @param null|ValueStore $csrfTokenStore
-     *     See {@link getCsrfTokenStore()}
-     * @param null|string $userLocale
-     *     See {@link getUserLocale()}
+     *                                          See {@link getCsrfTokenStore()}
+     * @param null|string     $userLocale
+     *                                          See {@link getUserLocale()}
      */
-    function __construct($appInfo, $clientIdentifier, $redirectUri, $csrfTokenStore, $userLocale = null)
+    public function __construct($appInfo, $clientIdentifier, $redirectUri, $csrfTokenStore, $userLocale = null)
     {
         parent::__construct($appInfo, $clientIdentifier, $userLocale);
 
-        Checker::argStringNonEmpty("redirectUri", $redirectUri);
+        Checker::argStringNonEmpty('redirectUri', $redirectUri);
 
         $this->csrfTokenStore = $csrfTokenStore;
         $this->redirectUri = $redirectUri;
@@ -133,22 +139,22 @@ class WebAuth extends WebAuthBase
      * See <a href="https://www.dropbox.com/developers/core/docs#oa2-authorize">/oauth2/authorize</a>.
      *
      * @param string|null $urlState
-     *    Any data you would like to keep in the URL through the authorization process.
-     *    This exact state will be returned to you by {@link finish()}.
-     *
-     * @return array
-     *    The URL to redirect the user to.
+     *                              Any data you would like to keep in the URL through the authorization process.
+     *                              This exact state will be returned to you by {@link finish()}.
      *
      * @throws Exception
+     *
+     * @return array
+     *               The URL to redirect the user to.
      */
-    function start($urlState = null)
+    public function start($urlState = null)
     {
-        Checker::argStringOrNull("urlState", $urlState);
+        Checker::argStringOrNull('urlState', $urlState);
 
         $csrfToken = self::encodeCsrfToken(Security::getRandomBytes(16));
         $state = $csrfToken;
         if ($urlState !== null) {
-            $state .= "|";
+            $state .= '|';
             $state .= $urlState;
         }
         $this->csrfTokenStore->set($csrfToken);
@@ -168,28 +174,28 @@ class WebAuth extends WebAuthBase
      * See <a href="https://www.dropbox.com/developers/core/docs#oa2-token">/oauth2/token</a>.
      *
      * @param array $queryParams
-     *    The query parameters on the GET request to your redirect URI.
-     *
-     * @return array
-     *    A <code>list(string $accessToken, string $userId, string $urlState)</code>, where
-     *    <code>$accessToken</code> can be used to construct a {@link Client}, <code>$userId</code>
-     *    is the user ID of the user's Dropbox account, and <code>$urlState</code> is the
-     *    value you originally passed in to {@link start()}.
+     *                           The query parameters on the GET request to your redirect URI.
      *
      * @throws Exception
-     *    Thrown if there's an error getting the access token from Dropbox.
+     *                                      Thrown if there's an error getting the access token from Dropbox.
      * @throws WebAuthException_BadRequest
      * @throws WebAuthException_BadState
      * @throws WebAuthException_Csrf
      * @throws WebAuthException_NotApproved
      * @throws WebAuthException_Provider
+     *
+     * @return array
+     *               A <code>list(string $accessToken, string $userId, string $urlState)</code>, where
+     *               <code>$accessToken</code> can be used to construct a {@link Client}, <code>$userId</code>
+     *               is the user ID of the user's Dropbox account, and <code>$urlState</code> is the
+     *               value you originally passed in to {@link start()}.
      */
-    function finish($queryParams)
+    public function finish($queryParams)
     {
-        Checker::argArray("queryParams", $queryParams);
+        Checker::argArray('queryParams', $queryParams);
 
         $csrfTokenFromSession = $this->csrfTokenStore->get();
-        Checker::argStringOrNull("this->csrfTokenStore->get()", $csrfTokenFromSession);
+        Checker::argStringOrNull('this->csrfTokenStore->get()', $csrfTokenFromSession);
 
         // Check well-formedness of request.
 
@@ -218,7 +224,7 @@ class WebAuth extends WebAuthBase
 
         if ($code !== null && $error !== null) {
             throw new WebAuthException_BadRequest("Query parameters 'code' and 'error' are both set;".
-                                                 " only one must be set.");
+                                                 ' only one must be set.');
         }
         if ($code === null && $error === null) {
             throw new WebAuthException_BadRequest("Neither query parameter 'code' or 'error' is set.");
@@ -230,7 +236,7 @@ class WebAuth extends WebAuthBase
             throw new WebAuthException_BadState();
         }
 
-        $splitPos = strpos($state, "|");
+        $splitPos = strpos($state, '|');
         if ($splitPos === false) {
             $givenCsrfToken = $state;
             $urlState = null;
@@ -239,8 +245,8 @@ class WebAuth extends WebAuthBase
             $urlState = substr($state, $splitPos + 1);
         }
         if (!Security::stringEquals($csrfTokenFromSession, $givenCsrfToken)) {
-            throw new WebAuthException_Csrf("Expected ".Util::q($csrfTokenFromSession) .
-                                           ", got ".Util::q($givenCsrfToken) .".");
+            throw new WebAuthException_Csrf('Expected '.Util::q($csrfTokenFromSession).
+                                           ', got '.Util::q($givenCsrfToken).'.');
         }
         $this->csrfTokenStore->clear();
 
@@ -250,7 +256,7 @@ class WebAuth extends WebAuthBase
             if ($error === 'access_denied') {
                 // When the user clicks "Deny".
                 if ($errorDescription === null) {
-                    throw new WebAuthException_NotApproved("No additional description from Dropbox.");
+                    throw new WebAuthException_NotApproved('No additional description from Dropbox.');
                 } else {
                     throw new WebAuthException_NotApproved("Additional description from Dropbox: $errorDescription");
                 }
@@ -258,7 +264,7 @@ class WebAuth extends WebAuthBase
                 // All other errors.
                 $fullMessage = $error;
                 if ($errorDescription !== null) {
-                    $fullMessage .= ": ";
+                    $fullMessage .= ': ';
                     $fullMessage .= $errorDescription;
                 }
                 throw new WebAuthException_Provider($fullMessage);
@@ -268,6 +274,7 @@ class WebAuth extends WebAuthBase
         // If everything went ok, make the network call to get an access token.
 
         list($accessToken, $userId) = $this->_finish($code, $this->redirectUri);
-        return array($accessToken, $userId, $urlState);
+
+        return [$accessToken, $userId, $urlState];
     }
 }

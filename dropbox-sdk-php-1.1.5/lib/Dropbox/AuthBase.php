@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -11,7 +12,10 @@ class AuthBase
      *
      * @return AppInfo
      */
-    function getAppInfo() { return $this->appInfo; }
+    public function getAppInfo()
+    {
+        return $this->appInfo;
+    }
 
     /** @var AppInfo */
     protected $appInfo;
@@ -19,7 +23,7 @@ class AuthBase
     /**
      * An identifier for the API client, typically of the form "Name/Version".
      * This is used to set the HTTP <code>User-Agent</code> header when making API requests.
-     * Example: <code>"PhotoEditServer/1.3"</code>
+     * Example: <code>"PhotoEditServer/1.3"</code>.
      *
      * If you're the author a higher-level library on top of the basic SDK, and the
      * "Photo Edit" app's server code is using your library to access Dropbox, you should append
@@ -35,7 +39,10 @@ class AuthBase
      *
      * @return string
      */
-    function getClientIdentifier() { return $this->clientIdentifier; }
+    public function getClientIdentifier()
+    {
+        return $this->clientIdentifier;
+    }
 
     /** @var string */
     protected $clientIdentifier;
@@ -47,7 +54,10 @@ class AuthBase
      *
      * @return null|string
      */
-    function getUserLocale() { return $this->userLocale; }
+    public function getUserLocale()
+    {
+        return $this->userLocale;
+    }
 
     /** @var string */
     protected $userLocale;
@@ -55,18 +65,18 @@ class AuthBase
     /**
      * Constructor.
      *
-     * @param AppInfo $appInfo
-     *     See {@link getAppInfo()}
-     * @param string $clientIdentifier
-     *     See {@link getClientIdentifier()}
+     * @param AppInfo     $appInfo
+     *                                      See {@link getAppInfo()}
+     * @param string      $clientIdentifier
+     *                                      See {@link getClientIdentifier()}
      * @param null|string $userLocale
-     *     See {@link getUserLocale()}
+     *                                      See {@link getUserLocale()}
      */
-    function __construct($appInfo, $clientIdentifier, $userLocale = null)
+    public function __construct($appInfo, $clientIdentifier, $userLocale = null)
     {
-        AppInfo::checkArg("appInfo", $appInfo);
-        Client::checkClientIdentifierArg("clientIdentifier", $clientIdentifier);
-        Checker::argStringNonEmptyOrNull("userLocale", $userLocale);
+        AppInfo::checkArg('appInfo', $appInfo);
+        Client::checkClientIdentifierArg('clientIdentifier', $clientIdentifier);
+        Checker::argStringNonEmptyOrNull('userLocale', $userLocale);
 
         $this->appInfo = $appInfo;
         $this->clientIdentifier = $clientIdentifier;

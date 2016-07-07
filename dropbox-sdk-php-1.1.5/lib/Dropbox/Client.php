@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 /**
@@ -15,7 +16,10 @@ class Client
      *
      * @return AccessToken
      */
-    function getAccessToken() { return $this->accessToken; }
+    public function getAccessToken()
+    {
+        return $this->accessToken;
+    }
 
     /** @var AccessToken */
     private $accessToken;
@@ -23,7 +27,7 @@ class Client
     /**
      * An identifier for the API client, typically of the form "Name/Version".
      * This is used to set the HTTP <code>User-Agent</code> header when making API requests.
-     * Example: <code>"PhotoEditServer/1.3"</code>
+     * Example: <code>"PhotoEditServer/1.3"</code>.
      *
      * If you're the author a higher-level library on top of the basic SDK, and the
      * "Photo Edit" app's server code is using your library to access Dropbox, you should append
@@ -39,7 +43,10 @@ class Client
      *
      * @return string
      */
-    function getClientIdentifier() { return $this->clientIdentifier; }
+    public function getClientIdentifier()
+    {
+        return $this->clientIdentifier;
+    }
 
     /** @var string */
     private $clientIdentifier;
@@ -51,7 +58,10 @@ class Client
      *
      * @return null|string
      */
-    function getUserLocale() { return $this->userLocale; }
+    public function getUserLocale()
+    {
+        return $this->userLocale;
+    }
 
     /** @var null|string */
     private $userLocale;
@@ -61,23 +71,26 @@ class Client
      *
      * @return Host
      */
-    function getHost() { return $this->host; }
+    public function getHost()
+    {
+        return $this->host;
+    }
 
     /**
      * Constructor.
      *
-     * @param string $accessToken
-     *     See {@link getAccessToken()}
-     * @param string $clientIdentifier
-     *     See {@link getClientIdentifier()}
+     * @param string      $accessToken
+     *                                      See {@link getAccessToken()}
+     * @param string      $clientIdentifier
+     *                                      See {@link getClientIdentifier()}
      * @param null|string $userLocale
-     *     See {@link getUserLocale()}
+     *                                      See {@link getUserLocale()}
      */
-    function __construct($accessToken, $clientIdentifier, $userLocale = null)
+    public function __construct($accessToken, $clientIdentifier, $userLocale = null)
     {
-        self::checkAccessTokenArg("accessToken", $accessToken);
-        self::checkClientIdentifierArg("clientIdentifier", $clientIdentifier);
-        Checker::argStringNonEmptyOrNull("userLocale", $userLocale);
+        self::checkAccessTokenArg('accessToken', $accessToken);
+        self::checkClientIdentifierArg('clientIdentifier', $clientIdentifier);
+        Checker::argStringNonEmptyOrNull('userLocale', $userLocale);
 
         $this->accessToken = $accessToken;
         $this->clientIdentifier = $clientIdentifier;
@@ -89,7 +102,7 @@ class Client
         $host = null;
         if (\func_num_args() == 4) {
             $host = \func_get_arg(3);
-            Host::checkArgOrNull("host", $host);
+            Host::checkArgOrNull('host', $host);
         }
         if ($host === null) {
             $host = Host::getDefault();
@@ -117,11 +130,12 @@ class Client
      *
      * @param string $base
      * @param string $path
+     *
      * @return string
      */
-    function appendFilePath($base, $path)
+    public function appendFilePath($base, $path)
     {
-        return $base . "/auto/" . rawurlencode(substr($path, 1));
+        return $base.'/auto/'.rawurlencode(substr($path, 1));
     }
 
     /**
@@ -132,10 +146,12 @@ class Client
      *
      * @throws Exception
      */
-    function disableAccessToken()
+    public function disableAccessToken()
     {
-        $response = $this->doPost($this->apiHost, "1/disable_access_token");
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        $response = $this->doPost($this->apiHost, '1/disable_access_token');
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
     }
 
     /**
@@ -147,15 +163,18 @@ class Client
      * print_r($accountInfo);
      * </code>
      *
-     * @return array
-     *    See <a href="https://www.dropbox.com/developers/core/docs#account-info">/account/info</a>.
-     *
      * @throws Exception
+     *
+     * @return array
+     *               See <a href="https://www.dropbox.com/developers/core/docs#account-info">/account/info</a>.
      */
-    function getAccountInfo()
+    public function getAccountInfo()
     {
-        $response = $this->doGet($this->apiHost, "1/account/info");
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        $response = $this->doGet($this->apiHost, '1/account/info');
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
+
         return RequestUtil::parseResponseJson($response->body);
     }
 
@@ -171,33 +190,31 @@ class Client
      * print_r($metadata);
      * </code>
      *
-     * @param string $path
-     *   The path to the file on Dropbox (UTF-8).
-     *
-     * @param resource $outStream
-     *   If the file exists, the file contents will be written to this stream.
-     *
+     * @param string      $path
+     *                               The path to the file on Dropbox (UTF-8).
+     * @param resource    $outStream
+     *                               If the file exists, the file contents will be written to this stream.
      * @param string|null $rev
-     *   If you want the latest revision of the file at the given path, pass in <code>null</code>.
-     *   If you want a specific version of a file, pass in value of the file metadata's "rev" field.
-     *
-     * @return null|array
-     *   The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
-     *   object</a> for the file at the given $path and $rev, or <code>null</code> if the file
-     *   doesn't exist,
+     *                               If you want the latest revision of the file at the given path, pass in <code>null</code>.
+     *                               If you want a specific version of a file, pass in value of the file metadata's "rev" field.
      *
      * @throws Exception
+     *
+     * @return null|array
+     *                    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
+     *                    object</a> for the file at the given $path and $rev, or <code>null</code> if the file
+     *                    doesn't exist,
      */
-    function getFile($path, $outStream, $rev = null)
+    public function getFile($path, $outStream, $rev = null)
     {
-        Path::checkArgNonRoot("path", $path);
-        Checker::argResource("outStream", $outStream);
-        Checker::argStringNonEmptyOrNull("rev", $rev);
+        Path::checkArgNonRoot('path', $path);
+        Checker::argResource('outStream', $outStream);
+        Checker::argStringNonEmptyOrNull('rev', $rev);
 
         $url = $this->buildUrlForGetOrPut(
             $this->contentHost,
-            $this->appendFilePath("1/files", $path),
-            array("rev" => $rev));
+            $this->appendFilePath('1/files', $path),
+            ['rev' => $rev]);
 
         $curl = $this->mkCurl($url);
         $metadataCatcher = new DropboxMetadataHeaderCatcher($curl->handle);
@@ -205,7 +222,9 @@ class Client
 
         $response = $curl->exec();
 
-        if ($response->statusCode === 404) return null;
+        if ($response->statusCode === 404) {
+            return;
+        }
 
         if ($response->statusCode !== 200) {
             $response->body = $streamRelay->getErrorBody();
@@ -251,32 +270,29 @@ class Client
      * print_r($md2);
      * </code>
      *
-     * @param string $path
-     *    The Dropbox path to save the file to (UTF-8).
-     *
+     * @param string    $path
+     *                             The Dropbox path to save the file to (UTF-8).
      * @param WriteMode $writeMode
-     *    What to do if there's already a file at the given path.
-     *
-     * @param resource $inStream
-     *    The data to use for the file contents.
-     *
-     * @param int|null $numBytes
-     *    You can pass in <code>null</code> if you don't know.  If you do provide the size, we can
-     *    perform a slightly more efficient upload (fewer network round-trips) for files smaller
-     *    than 8 MB.
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
-     *    object</a> for the newly-added file.
+     *                             What to do if there's already a file at the given path.
+     * @param resource  $inStream
+     *                             The data to use for the file contents.
+     * @param int|null  $numBytes
+     *                             You can pass in <code>null</code> if you don't know.  If you do provide the size, we can
+     *                             perform a slightly more efficient upload (fewer network round-trips) for files smaller
+     *                             than 8 MB.
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
+     *               object</a> for the newly-added file.
      */
-    function uploadFile($path, $writeMode, $inStream, $numBytes = null)
+    public function uploadFile($path, $writeMode, $inStream, $numBytes = null)
     {
-        Path::checkArgNonRoot("path", $path);
-        WriteMode::checkArg("writeMode", $writeMode);
-        Checker::argResource("inStream", $inStream);
-        Checker::argNatOrNull("numBytes", $numBytes);
+        Path::checkArgNonRoot('path', $path);
+        WriteMode::checkArg('writeMode', $writeMode);
+        Checker::argResource('inStream', $inStream);
+        Checker::argNatOrNull('numBytes', $numBytes);
 
         // If we don't know how many bytes are coming, we have to use chunked upload.
         // If $numBytes is large, we elect to use chunked upload.
@@ -286,7 +302,7 @@ class Client
                                                   self::$DEFAULT_CHUNK_SIZE);
         } else {
             $metadata = $this->_uploadFile($path, $writeMode,
-                function(Curl $curl) use ($inStream, $numBytes) {
+                function (Curl $curl) use ($inStream, $numBytes) {
                     $curl->set(CURLOPT_PUT, true);
                     $curl->set(CURLOPT_INFILE, $inStream);
                     $curl->set(CURLOPT_INFILESIZE, $numBytes);
@@ -308,31 +324,29 @@ class Client
      * print_r($md);
      * </code>
      *
-     * @param string $path
-     *    The Dropbox path to save the file to (UTF-8).
-     *
+     * @param string    $path
+     *                             The Dropbox path to save the file to (UTF-8).
      * @param WriteMode $writeMode
-     *    What to do if there's already a file at the given path.
-     *
-     * @param string $data
-     *    The data to use for the contents of the file.
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
-     *    object</a> for the newly-added file.
+     *                             What to do if there's already a file at the given path.
+     * @param string    $data
+     *                             The data to use for the contents of the file.
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
+     *               object</a> for the newly-added file.
      */
-    function uploadFileFromString($path, $writeMode, $data)
+    public function uploadFileFromString($path, $writeMode, $data)
     {
-        Path::checkArgNonRoot("path", $path);
-        WriteMode::checkArg("writeMode", $writeMode);
-        Checker::argString("data", $data);
+        Path::checkArgNonRoot('path', $path);
+        WriteMode::checkArg('writeMode', $writeMode);
+        Checker::argString('data', $data);
 
-        return $this->_uploadFile($path, $writeMode, function(Curl $curl) use ($data) {
-            $curl->set(CURLOPT_CUSTOMREQUEST, "PUT");
+        return $this->_uploadFile($path, $writeMode, function (Curl $curl) use ($data) {
+            $curl->set(CURLOPT_CUSTOMREQUEST, 'PUT');
             $curl->set(CURLOPT_POSTFIELDS, $data);
-            $curl->addHeader("Content-Type: application/octet-stream");
+            $curl->addHeader('Content-Type: application/octet-stream');
         });
     }
 
@@ -343,71 +357,63 @@ class Client
      * will retry a few times if one chunk fails to upload.  Uses {@link chunkedUploadStart()},
      * {@link chunkedUploadContinue()}, and {@link chunkedUploadFinish()}.
      *
-     * @param string $path
-     *    The Dropbox path to save the file to (UTF-8).
-     *
+     * @param string    $path
+     *                             The Dropbox path to save the file to (UTF-8).
      * @param WriteMode $writeMode
-     *    What to do if there's already a file at the given path.
-     *
-     * @param resource $inStream
-     *    The data to use for the file contents.
-     *
-     * @param int|null $numBytes
-     *    The number of bytes available from $inStream.
-     *    You can pass in <code>null</code> if you don't know.
-     *
-     * @param int|null $chunkSize
-     *    The number of bytes to upload in each chunk.  You can omit this (or pass in
-     *    <code>null</code> and the library will use a reasonable default.
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
-     *    object</a> for the newly-added file.
+     *                             What to do if there's already a file at the given path.
+     * @param resource  $inStream
+     *                             The data to use for the file contents.
+     * @param int|null  $numBytes
+     *                             The number of bytes available from $inStream.
+     *                             You can pass in <code>null</code> if you don't know.
+     * @param int|null  $chunkSize
+     *                             The number of bytes to upload in each chunk.  You can omit this (or pass in
+     *                             <code>null</code> and the library will use a reasonable default.
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
+     *               object</a> for the newly-added file.
      */
-    function uploadFileChunked($path, $writeMode, $inStream, $numBytes = null, $chunkSize = null)
+    public function uploadFileChunked($path, $writeMode, $inStream, $numBytes = null, $chunkSize = null)
     {
         if ($chunkSize === null) {
             $chunkSize = self::$DEFAULT_CHUNK_SIZE;
         }
 
-        Path::checkArgNonRoot("path", $path);
-        WriteMode::checkArg("writeMode", $writeMode);
-        Checker::argResource("inStream", $inStream);
-        Checker::argNatOrNull("numBytes", $numBytes);
-        Checker::argIntPositive("chunkSize", $chunkSize);
+        Path::checkArgNonRoot('path', $path);
+        WriteMode::checkArg('writeMode', $writeMode);
+        Checker::argResource('inStream', $inStream);
+        Checker::argNatOrNull('numBytes', $numBytes);
+        Checker::argIntPositive('chunkSize', $chunkSize);
 
         return $this->_uploadFileChunked($path, $writeMode, $inStream, $numBytes, $chunkSize);
     }
 
     /**
-     * @param string $path
-     *
+     * @param string    $path
      * @param WriteMode $writeMode
-     *    What to do if there's already a file at the given path (UTF-8).
-     *
-     * @param resource $inStream
-     *    The source of data to upload.
-     *
-     * @param int|null $numBytes
-     *    You can pass in <code>null</code>.  But if you know how many bytes you expect, pass in
-     *    that value and this function will do a sanity check at the end to make sure the number of
-     *    bytes read from $inStream matches up.
-     *
-     * @param int $chunkSize
+     *                             What to do if there's already a file at the given path (UTF-8).
+     * @param resource  $inStream
+     *                             The source of data to upload.
+     * @param int|null  $numBytes
+     *                             You can pass in <code>null</code>.  But if you know how many bytes you expect, pass in
+     *                             that value and this function will do a sanity check at the end to make sure the number of
+     *                             bytes read from $inStream matches up.
+     * @param int       $chunkSize
      *
      * @return array
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
-     *    object</a> for the newly-added file.
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
+     *               object</a> for the newly-added file.
      */
     private function _uploadFileChunked($path, $writeMode, $inStream, $numBytes, $chunkSize)
     {
-        Path::checkArg("path", $path);
-        WriteMode::checkArg("writeMode", $writeMode);
-        Checker::argResource("inStream", $inStream);
-        Checker::argNatOrNull("numBytes", $numBytes);
-        Checker::argNat("chunkSize", $chunkSize);
+        Path::checkArg('path', $path);
+        WriteMode::checkArg('writeMode', $writeMode);
+        Checker::argResource('inStream', $inStream);
+        Checker::argNatOrNull('numBytes', $numBytes);
+        Checker::argNat('chunkSize', $chunkSize);
 
         // NOTE: This function performs 3 retries on every call.  This is maybe not the right
         // layer to make retry decisions.  It's also awkward because none of the other calls
@@ -419,7 +425,7 @@ class Client
         $len = strlen($data);
 
         $client = $this;
-        $uploadId = RequestUtil::runWithRetry(3, function() use ($data, $client) {
+        $uploadId = RequestUtil::runWithRetry(3, function () use ($data, $client) {
             return $client->chunkedUploadStart($data);
         });
 
@@ -431,7 +437,7 @@ class Client
 
             while (true) {
                 $r = RequestUtil::runWithRetry(3,
-                    function() use ($client, $uploadId, $byteOffset, $data) {
+                    function () use ($client, $uploadId, $byteOffset, $data) {
                         return $client->chunkedUploadContinue($uploadId, $byteOffset, $data);
                     });
 
@@ -441,32 +447,40 @@ class Client
                 }
                 if ($r === false) {  // Server didn't recognize our upload ID
                     // This is very unlikely since we're uploading all the chunks in sequence.
-                    throw new Exception_BadResponse("Server forgot our uploadId");
+                    throw new Exception_BadResponse('Server forgot our uploadId');
                 }
 
                 // Otherwise, the server is at a different byte offset from us.
                 $serverByteOffset = $r;
                 assert($serverByteOffset !== $byteOffset);  // chunkedUploadContinue ensures this.
                 // An earlier byte offset means the server has lost data we sent earlier.
-                if ($serverByteOffset < $byteOffset) throw new Exception_BadResponse(
+                if ($serverByteOffset < $byteOffset) {
+                    throw new Exception_BadResponse(
                     "Server is at an ealier byte offset: us=$byteOffset, server=$serverByteOffset");
+                }
                 $diff = $serverByteOffset - $byteOffset;
                 // If the server is past where we think it could possibly be, something went wrong.
-                if ($diff > $len) throw new Exception_BadResponse(
+                if ($diff > $len) {
+                    throw new Exception_BadResponse(
                     "Server is more than a chunk ahead: us=$byteOffset, server=$serverByteOffset");
+                }
                 // The normal case is that the server is a bit further along than us because of a
                 // partially-uploaded chunk.  Finish it off.
                 $byteOffset += $diff;
-                if ($diff === $len) break;  // If the server is at the end, we're done.
+                if ($diff === $len) {
+                    break;
+                }  // If the server is at the end, we're done.
                 $data = substr($data, $diff);
             }
         }
 
-        if ($numBytes !== null && $byteOffset !== $numBytes) throw new \InvalidArgumentException(
+        if ($numBytes !== null && $byteOffset !== $numBytes) {
+            throw new \InvalidArgumentException(
             "You passed numBytes=$numBytes but the stream had $byteOffset bytes.");
+        }
 
         $metadata = RequestUtil::runWithRetry(3,
-            function() use ($client, $uploadId, $path, $writeMode) {
+            function () use ($client, $uploadId, $path, $writeMode) {
                 return $client->chunkedUploadFinish($uploadId, $path, $writeMode);
             });
 
@@ -479,40 +493,46 @@ class Client
      * bytes have been read or we've reached EOF.
      *
      * @param resource $inStream
-     * @param int $numBytes
+     * @param int      $numBytes
+     *
      * @throws StreamReadException
+     *
      * @return string
      */
     private static function readFully($inStream, $numBytes)
     {
-        Checker::argNat("numBytes", $numBytes);
+        Checker::argNat('numBytes', $numBytes);
 
         $full = '';
         $bytesRemaining = $numBytes;
         while (!feof($inStream) && $bytesRemaining > 0) {
             $part = fread($inStream, $bytesRemaining);
-            if ($part === false) throw new StreamReadException("Error reading from \$inStream.");
+            if ($part === false) {
+                throw new StreamReadException('Error reading from $inStream.');
+            }
             $full .= $part;
             $bytesRemaining -= strlen($part);
         }
+
         return $full;
     }
 
     /**
-     * @param string $path
+     * @param string    $path
      * @param WriteMode $writeMode
-     * @param callable $curlConfigClosure
+     * @param callable  $curlConfigClosure
+     *
      * @return array
      */
     private function _uploadFile($path, $writeMode, $curlConfigClosure)
     {
-        Path::checkArg("path", $path);
-        WriteMode::checkArg("writeMode", $writeMode);
-        Checker::argCallable("curlConfigClosure", $curlConfigClosure);
+        Path::checkArg('path', $path);
+        WriteMode::checkArg('writeMode', $writeMode);
+        Checker::argCallable('curlConfigClosure', $curlConfigClosure);
 
         $url = $this->buildUrlForGetOrPut(
             $this->contentHost,
-            $this->appendFilePath("1/files_put", $path),
+            $this->appendFilePath('1/files_put', $path),
             $writeMode->getExtraParams());
 
         $curl = $this->mkCurl($url);
@@ -522,7 +542,9 @@ class Client
         $curl->set(CURLOPT_RETURNTRANSFER, true);
         $response = $curl->exec();
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -531,36 +553,42 @@ class Client
      * Start a new chunked upload session and upload the first chunk of data.
      *
      * @param string $data
-     *     The data to start off the chunked upload session.
-     *
-     * @return array
-     *     A pair of <code>(string $uploadId, int $byteOffset)</code>.  <code>$uploadId</code>
-     *     is a unique identifier for this chunked upload session.  You pass this in to
-     *     {@link chunkedUploadContinue} and {@link chuunkedUploadFinish}.  <code>$byteOffset</code>
-     *     is the number of bytes that were successfully uploaded.
+     *                     The data to start off the chunked upload session.
      *
      * @throws Exception
+     *
+     * @return array
+     *               A pair of <code>(string $uploadId, int $byteOffset)</code>.  <code>$uploadId</code>
+     *               is a unique identifier for this chunked upload session.  You pass this in to
+     *               {@link chunkedUploadContinue} and {@link chuunkedUploadFinish}.  <code>$byteOffset</code>
+     *               is the number of bytes that were successfully uploaded.
      */
-    function chunkedUploadStart($data)
+    public function chunkedUploadStart($data)
     {
-        Checker::argString("data", $data);
+        Checker::argString('data', $data);
 
-        $response = $this->_chunkedUpload(array(), $data);
+        $response = $this->_chunkedUpload([], $data);
 
         if ($response->statusCode === 404) {
             throw new Exception_BadResponse("Got a 404, but we didn't send up an 'upload_id'");
         }
 
         $correction = self::_chunkedUploadCheckForOffsetCorrection($response);
-        if ($correction !== null) throw new Exception_BadResponse(
+        if ($correction !== null) {
+            throw new Exception_BadResponse(
             "Got an offset-correcting 400 response, but we didn't send an offset");
+        }
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         list($uploadId, $byteOffset) = self::_chunkedUploadParse200Response($response->body);
         $len = strlen($data);
-        if ($byteOffset !== $len) throw new Exception_BadResponse(
+        if ($byteOffset !== $len) {
+            throw new Exception_BadResponse(
             "We sent $len bytes, but server returned an offset of $byteOffset");
+        }
 
         return $uploadId;
     }
@@ -569,35 +597,33 @@ class Client
      * Append another chunk data to a previously-started chunked upload session.
      *
      * @param string $uploadId
-     *     The unique identifier for the chunked upload session.  This is obtained via
-     *     {@link chunkedUploadStart}.
-     *
-     * @param int $byteOffset
-     *     The number of bytes you think you've already uploaded to the given chunked upload
-     *     session.  The server will append the new chunk of data after that point.
-     *
+     *                           The unique identifier for the chunked upload session.  This is obtained via
+     *                           {@link chunkedUploadStart}.
+     * @param int    $byteOffset
+     *                           The number of bytes you think you've already uploaded to the given chunked upload
+     *                           session.  The server will append the new chunk of data after that point.
      * @param string $data
-     *     The data to append to the existing chunked upload session.
-     *
-     * @return int|bool
-     *     If <code>false</code>, it means the server didn't know about the given
-     *     <code>$uploadId</code>.  This may be because the chunked upload session has expired
-     *     (they last around 24 hours).
-     *     If <code>true</code>, the chunk was successfully uploaded.  If an integer, it means
-     *     you and the server don't agree on the current <code>$byteOffset</code>.  The returned
-     *     integer is the server's internal byte offset for the chunked upload session.  You need
-     *     to adjust your input to match.
+     *                           The data to append to the existing chunked upload session.
      *
      * @throws Exception
+     *
+     * @return int|bool
+     *                  If <code>false</code>, it means the server didn't know about the given
+     *                  <code>$uploadId</code>.  This may be because the chunked upload session has expired
+     *                  (they last around 24 hours).
+     *                  If <code>true</code>, the chunk was successfully uploaded.  If an integer, it means
+     *                  you and the server don't agree on the current <code>$byteOffset</code>.  The returned
+     *                  integer is the server's internal byte offset for the chunked upload session.  You need
+     *                  to adjust your input to match.
      */
-    function chunkedUploadContinue($uploadId, $byteOffset, $data)
+    public function chunkedUploadContinue($uploadId, $byteOffset, $data)
     {
-        Checker::argStringNonEmpty("uploadId", $uploadId);
-        Checker::argNat("byteOffset", $byteOffset);
-        Checker::argString("data", $data);
+        Checker::argStringNonEmpty('uploadId', $uploadId);
+        Checker::argNat('byteOffset', $byteOffset);
+        Checker::argString('data', $data);
 
         $response = $this->_chunkedUpload(
-            array("upload_id" => $uploadId, "offset" => $byteOffset), $data);
+            ['upload_id' => $uploadId, 'offset' => $byteOffset], $data);
 
         if ($response->statusCode === 404) {
             // The server doesn't know our upload ID.  Maybe it expired?
@@ -607,51 +633,72 @@ class Client
         $correction = self::_chunkedUploadCheckForOffsetCorrection($response);
         if ($correction !== null) {
             list($correctedUploadId, $correctedByteOffset) = $correction;
-            if ($correctedUploadId !== $uploadId) throw new Exception_BadResponse(
-                "Corrective 400 upload_id mismatch: us=".
-                Util::q($uploadId)." server=".Util::q($correctedUploadId));
-            if ($correctedByteOffset === $byteOffset) throw new Exception_BadResponse(
+            if ($correctedUploadId !== $uploadId) {
+                throw new Exception_BadResponse(
+                'Corrective 400 upload_id mismatch: us='.
+                Util::q($uploadId).' server='.Util::q($correctedUploadId));
+            }
+            if ($correctedByteOffset === $byteOffset) {
+                throw new Exception_BadResponse(
                 "Corrective 400 offset is the same as ours: $byteOffset");
+            }
+
             return $correctedByteOffset;
         }
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
         list($retUploadId, $retByteOffset) = self::_chunkedUploadParse200Response($response->body);
 
         $nextByteOffset = $byteOffset + strlen($data);
-        if ($uploadId !== $retUploadId) throw new Exception_BadResponse(
-                "upload_id mismatch: us=".Util::q($uploadId) .", server=".Util::q($uploadId));
-        if ($nextByteOffset !== $retByteOffset) throw new Exception_BadResponse(
+        if ($uploadId !== $retUploadId) {
+            throw new Exception_BadResponse(
+                'upload_id mismatch: us='.Util::q($uploadId).', server='.Util::q($uploadId));
+        }
+        if ($nextByteOffset !== $retByteOffset) {
+            throw new Exception_BadResponse(
                 "next-offset mismatch: us=$nextByteOffset, server=$retByteOffset");
+        }
 
         return true;
     }
 
     /**
      * @param string $body
+     *
      * @return array
      */
     private static function _chunkedUploadParse200Response($body)
     {
         $j = RequestUtil::parseResponseJson($body);
-        $uploadId = self::getField($j, "upload_id");
-        $byteOffset = self::getField($j, "offset");
-        return array($uploadId, $byteOffset);
+        $uploadId = self::getField($j, 'upload_id');
+        $byteOffset = self::getField($j, 'offset');
+
+        return [$uploadId, $byteOffset];
     }
 
     /**
      * @param HttpResponse $response
+     *
      * @return array|null
      */
     private static function _chunkedUploadCheckForOffsetCorrection($response)
     {
-        if ($response->statusCode !== 400) return null;
+        if ($response->statusCode !== 400) {
+            return;
+        }
         $j = json_decode($response->body, true, 10);
-        if ($j === null) return null;
-        if (!array_key_exists("upload_id", $j) || !array_key_exists("offset", $j)) return null;
-        $uploadId = $j["upload_id"];
-        $byteOffset = $j["offset"];
-        return array($uploadId, $byteOffset);
+        if ($j === null) {
+            return;
+        }
+        if (!array_key_exists('upload_id', $j) || !array_key_exists('offset', $j)) {
+            return;
+        }
+        $uploadId = $j['upload_id'];
+        $byteOffset = $j['offset'];
+
+        return [$uploadId, $byteOffset];
     }
 
     /**
@@ -659,63 +706,67 @@ class Client
      *
      * See <a href="https://www.dropbox.com/developers/core/docs#commit-chunked-upload">/commit_chunked_upload</a>.
      *
-     * @param string $uploadId
-     *     The unique identifier for the chunked upload session.  This is obtained via
-     *     {@link chunkedUploadStart}.
-     *
-     * @param string $path
-     *    The Dropbox path to save the file to ($path).
-     *
+     * @param string    $uploadId
+     *                             The unique identifier for the chunked upload session.  This is obtained via
+     *                             {@link chunkedUploadStart}.
+     * @param string    $path
+     *                             The Dropbox path to save the file to ($path).
      * @param WriteMode $writeMode
-     *    What to do if there's already a file at the given path.
-     *
-     * @return array|null
-     *    If <code>null</code>, it means the Dropbox server wasn't aware of the
-     *    <code>$uploadId</code> you gave it.
-     *    Otherwise, you get back the
-     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
-     *    for the newly-created file.
+     *                             What to do if there's already a file at the given path.
      *
      * @throws Exception
+     *
+     * @return array|null
+     *                    If <code>null</code>, it means the Dropbox server wasn't aware of the
+     *                    <code>$uploadId</code> you gave it.
+     *                    Otherwise, you get back the
+     *                    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
+     *                    for the newly-created file.
      */
-    function chunkedUploadFinish($uploadId, $path, $writeMode)
+    public function chunkedUploadFinish($uploadId, $path, $writeMode)
     {
-        Checker::argStringNonEmpty("uploadId", $uploadId);
-        Path::checkArgNonRoot("path", $path);
-        WriteMode::checkArg("writeMode", $writeMode);
+        Checker::argStringNonEmpty('uploadId', $uploadId);
+        Path::checkArgNonRoot('path', $path);
+        WriteMode::checkArg('writeMode', $writeMode);
 
-        $params = array_merge(array("upload_id" => $uploadId), $writeMode->getExtraParams());
+        $params = array_merge(['upload_id' => $uploadId], $writeMode->getExtraParams());
 
         $response = $this->doPost(
             $this->contentHost,
-            $this->appendFilePath("1/commit_chunked_upload", $path),
+            $this->appendFilePath('1/commit_chunked_upload', $path),
             $params);
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
 
     /**
-     * @param array $params
+     * @param array  $params
      * @param string $data
+     *
      * @return HttpResponse
      */
     protected function _chunkedUpload($params, $data)
         // Marked 'protected' so I can override it in testing.
     {
         $url = $this->buildUrlForGetOrPut(
-            $this->contentHost, "1/chunked_upload", $params);
+            $this->contentHost, '1/chunked_upload', $params);
 
         $curl = $this->mkCurl($url);
 
         // We can't use CURLOPT_PUT because it wants a stream, but we already have $data in memory.
-        $curl->set(CURLOPT_CUSTOMREQUEST, "PUT");
+        $curl->set(CURLOPT_CUSTOMREQUEST, 'PUT');
         $curl->set(CURLOPT_POSTFIELDS, $data);
-        $curl->addHeader("Content-Type: application/octet-stream");
+        $curl->addHeader('Content-Type: application/octet-stream');
 
         $curl->set(CURLOPT_RETURNTRANSFER, true);
+
         return $curl->exec();
     }
 
@@ -729,20 +780,20 @@ class Client
      * </code>
      *
      * @param string $path
-     *    The Dropbox path to a file or folder (UTF-8).
-     *
-     * @return array|null
-     *    If there is a file or folder at the given path, you'll get back the
-     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
-     *    for that file or folder.  If not, you'll get back <code>null</code>.
+     *                     The Dropbox path to a file or folder (UTF-8).
      *
      * @throws Exception
+     *
+     * @return array|null
+     *                    If there is a file or folder at the given path, you'll get back the
+     *                    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
+     *                    for that file or folder.  If not, you'll get back <code>null</code>.
      */
-    function getMetadata($path)
+    public function getMetadata($path)
     {
-        Path::checkArg("path", $path);
+        Path::checkArg('path', $path);
 
-        return $this->_getMetadata($path, array("list" => "false"));
+        return $this->_getMetadata($path, ['list' => 'false']);
     }
 
     /**
@@ -756,40 +807,48 @@ class Client
      * </code>
      *
      * @param string $path
-     *    The Dropbox path to a file or folder (UTF-8).
-     *
-     * @return array|null
-     *    If there is a file or folder at the given path, you'll get back the
-     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
-     *    for that file or folder, along with all immediate children if it's a folder.  If not,
-     *    you'll get back <code>null</code>.
+     *                     The Dropbox path to a file or folder (UTF-8).
      *
      * @throws Exception
+     *
+     * @return array|null
+     *                    If there is a file or folder at the given path, you'll get back the
+     *                    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
+     *                    for that file or folder, along with all immediate children if it's a folder.  If not,
+     *                    you'll get back <code>null</code>.
      */
-    function getMetadataWithChildren($path)
+    public function getMetadataWithChildren($path)
     {
-        Path::checkArg("path", $path);
+        Path::checkArg('path', $path);
 
-        return $this->_getMetadata($path, array("list" => "true", "file_limit" => "25000"));
+        return $this->_getMetadata($path, ['list' => 'true', 'file_limit' => '25000']);
     }
 
     /**
      * @param string $path
-     * @param array $params
+     * @param array  $params
+     *
      * @return array
      */
     private function _getMetadata($path, $params)
     {
         $response = $this->doGet(
             $this->apiHost,
-            $this->appendFilePath("1/metadata", $path),
+            $this->appendFilePath('1/metadata', $path),
             $params);
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         $metadata = RequestUtil::parseResponseJson($response->body);
-        if (array_key_exists("is_deleted", $metadata) && $metadata["is_deleted"]) return null;
+        if (array_key_exists('is_deleted', $metadata) && $metadata['is_deleted']) {
+            return;
+        }
+
         return $metadata;
     }
 
@@ -818,75 +877,82 @@ class Client
      * </code>
      *
      * @param string $path
-     *    The Dropbox path to a folder (UTF-8).
-     *
+     *                                   The Dropbox path to a folder (UTF-8).
      * @param string $previousFolderHash
-     *    The "hash" field from the previously retrieved folder metadata.
-     *
-     * @return array
-     *    A <code>list(boolean $changed, array $metadata)</code>.  If the metadata hasn't changed,
-     *    you'll get <code>list(false, null)</code>.  If the metadata of the folder or any of its
-     *    children has changed, you'll get <code>list(true, $newMetadata)</code>.  $metadata is a
-     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>.
+     *                                   The "hash" field from the previously retrieved folder metadata.
      *
      * @throws Exception
+     *
+     * @return array
+     *               A <code>list(boolean $changed, array $metadata)</code>.  If the metadata hasn't changed,
+     *               you'll get <code>list(false, null)</code>.  If the metadata of the folder or any of its
+     *               children has changed, you'll get <code>list(true, $newMetadata)</code>.  $metadata is a
+     *               <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>.
      */
-    function getMetadataWithChildrenIfChanged($path, $previousFolderHash)
+    public function getMetadataWithChildrenIfChanged($path, $previousFolderHash)
     {
-        Path::checkArg("path", $path);
-        Checker::argStringNonEmpty("previousFolderHash", $previousFolderHash);
+        Path::checkArg('path', $path);
+        Checker::argStringNonEmpty('previousFolderHash', $previousFolderHash);
 
-        $params = array("list" => "true", "file_limit" => "25000", "hash" => $previousFolderHash);
+        $params = ['list' => 'true', 'file_limit' => '25000', 'hash' => $previousFolderHash];
 
         $response = $this->doGet(
             $this->apiHost,
-            $this->appendFilePath("1/metadata", $path),
+            $this->appendFilePath('1/metadata', $path),
             $params);
 
-        if ($response->statusCode === 304) return array(false, null);
-        if ($response->statusCode === 404) return array(true, null);
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 304) {
+            return [false, null];
+        }
+        if ($response->statusCode === 404) {
+            return [true, null];
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         $metadata = RequestUtil::parseResponseJson($response->body);
-        if (array_key_exists("is_deleted", $metadata) && $metadata["is_deleted"]) {
-            return array(true, null);
+        if (array_key_exists('is_deleted', $metadata) && $metadata['is_deleted']) {
+            return [true, null];
         }
-        return array(true, $metadata);
+
+        return [true, $metadata];
     }
 
     /**
      * A way of letting you keep up with changes to files and folders in a user's Dropbox.
      *
      * @param string|null $cursor
-     *    If this is the first time you're calling this, pass in <code>null</code>.  Otherwise,
-     *    pass in whatever cursor was returned by the previous call.
-     *
+     *                                If this is the first time you're calling this, pass in <code>null</code>.  Otherwise,
+     *                                pass in whatever cursor was returned by the previous call.
      * @param string|null $pathPrefix
-     *    If <code>null</code>, you'll get results for the entire folder (either the user's
-     *    entire Dropbox or your App Folder).  If you set <code>$path_prefix</code> to
-     *    "/Photos/Vacation", you'll only get results for that path and any files and folders
-     *    under it.
-     *
-     * @return array
-     *    A <a href="https://www.dropbox.com/developers/core/docs#delta">delta page</a>, which
-     *    contains a list of changes to apply along with a new "cursor" that should be passed into
-     *    future <code>getDelta</code> calls.  If the "reset" field is <code>true</code>, you
-     *    should clear your local state before applying the changes.  If the "has_more" field is
-     *    <code>true</code>, call <code>getDelta</code> immediately to get more results, otherwise
-     *    wait a while (at least 5 minutes) before calling <code>getDelta</code> again.
+     *                                If <code>null</code>, you'll get results for the entire folder (either the user's
+     *                                entire Dropbox or your App Folder).  If you set <code>$path_prefix</code> to
+     *                                "/Photos/Vacation", you'll only get results for that path and any files and folders
+     *                                under it.
      *
      * @throws Exception
+     *
+     * @return array
+     *               A <a href="https://www.dropbox.com/developers/core/docs#delta">delta page</a>, which
+     *               contains a list of changes to apply along with a new "cursor" that should be passed into
+     *               future <code>getDelta</code> calls.  If the "reset" field is <code>true</code>, you
+     *               should clear your local state before applying the changes.  If the "has_more" field is
+     *               <code>true</code>, call <code>getDelta</code> immediately to get more results, otherwise
+     *               wait a while (at least 5 minutes) before calling <code>getDelta</code> again.
      */
-    function getDelta($cursor = null, $pathPrefix = null)
+    public function getDelta($cursor = null, $pathPrefix = null)
     {
-        Checker::argStringNonEmptyOrNull("cursor", $cursor);
-        Path::checkArgOrNull("pathPrefix", $pathPrefix);
+        Checker::argStringNonEmptyOrNull('cursor', $cursor);
+        Path::checkArgOrNull('pathPrefix', $pathPrefix);
 
-        $response = $this->doPost($this->apiHost, "1/delta", array(
-            "cursor" => $cursor,
-            "path_prefix" => $pathPrefix));
+        $response = $this->doPost($this->apiHost, '1/delta', [
+            'cursor'      => $cursor,
+            'path_prefix' => $pathPrefix, ]);
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -898,29 +964,32 @@ class Client
      *
      * @param string path
      *    The Dropbox path that you want file revision metadata for (UTF-8).
-     *
      * @param int|null limit
      *    The maximum number of revisions to return.
      *
-     * @return array|null
-     *    A list of <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
-     *    objects</a>, one for each file revision.  The later revisions appear first in the list.
-     *    If <code>null</code>, then there were too many revisions at that path.
-     *
      * @throws Exception
+     *
+     * @return array|null
+     *                    A list of <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
+     *                    objects</a>, one for each file revision.  The later revisions appear first in the list.
+     *                    If <code>null</code>, then there were too many revisions at that path.
      */
-    function getRevisions($path, $limit = null)
+    public function getRevisions($path, $limit = null)
     {
-        Path::checkArgNonRoot("path", $path);
-        Checker::argIntPositiveOrNull("limit", $limit);
+        Path::checkArgNonRoot('path', $path);
+        Checker::argIntPositiveOrNull('limit', $limit);
 
         $response = $this->doGet(
             $this->apiHost,
-            $this->appendFilePath("1/revisions", $path),
-            array("rev_limit" => $limit));
+            $this->appendFilePath('1/revisions', $path),
+            ['rev_limit' => $limit]);
 
-        if ($response->statusCode === 406) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 406) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -932,29 +1001,32 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#restore">/restore</a>.
      *
      * @param string $path
-     *    The Dropbox path of the file to restore (UTF-8).
-     *
+     *                     The Dropbox path of the file to restore (UTF-8).
      * @param string $rev
-     *    The revision to restore the contents to.
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
-     *    object</a>
+     *                     The revision to restore the contents to.
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
+     *               object</a>
      */
-    function restoreFile($path, $rev)
+    public function restoreFile($path, $rev)
     {
-        Path::checkArgNonRoot("path", $path);
-        Checker::argStringNonEmpty("rev", $rev);
+        Path::checkArgNonRoot('path', $path);
+        Checker::argStringNonEmpty('rev', $rev);
 
         $response = $this->doPost(
             $this->apiHost,
-            $this->appendFilePath("1/restore", $path),
-            array("rev" => $rev));
+            $this->appendFilePath('1/restore', $path),
+            ['rev' => $rev]);
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -964,42 +1036,41 @@ class Client
      *
      * See <a href="https://www.dropbox.com/developers/core/docs#search">/search</a>.
      *
-     * @param string $basePath
-     *    The path to limit the search to (UTF-8).  Pass in "/" to search everything.
-     *
-     * @param string $query
-     *    A space-separated list of substrings to search for.  A file matches only if it contains
-     *    all the substrings.
-     *
+     * @param string   $basePath
+     *                                 The path to limit the search to (UTF-8).  Pass in "/" to search everything.
+     * @param string   $query
+     *                                 A space-separated list of substrings to search for.  A file matches only if it contains
+     *                                 all the substrings.
      * @param int|null $limit
-     *    The maximum number of results to return.
-     *
-     * @param bool $includeDeleted
-     *    Whether to include deleted files in the results.
-     *
-     * @return mixed
-     *    A list of <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
-     *    objects</a> of files that match the search query.
+     *                                 The maximum number of results to return.
+     * @param bool     $includeDeleted
+     *                                 Whether to include deleted files in the results.
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               A list of <a href="https://www.dropbox.com/developers/core/docs#metadata-details>metadata
+     *               objects</a> of files that match the search query.
      */
-    function searchFileNames($basePath, $query, $limit = null, $includeDeleted = false)
+    public function searchFileNames($basePath, $query, $limit = null, $includeDeleted = false)
     {
-        Path::checkArg("basePath", $basePath);
-        Checker::argStringNonEmpty("query", $query);
-        Checker::argNatOrNull("limit", $limit);
-        Checker::argBool("includeDeleted", $includeDeleted);
+        Path::checkArg('basePath', $basePath);
+        Checker::argStringNonEmpty('query', $query);
+        Checker::argNatOrNull('limit', $limit);
+        Checker::argBool('includeDeleted', $includeDeleted);
 
         $response = $this->doPost(
             $this->apiHost,
-            $this->appendFilePath("1/search", $basePath),
-            array(
-                "query" => $query,
-                "file_limit" => $limit,
-                "include_deleted" => $includeDeleted,
-            ));
+            $this->appendFilePath('1/search', $basePath),
+            [
+                'query'           => $query,
+                'file_limit'      => $limit,
+                'include_deleted' => $includeDeleted,
+            ]);
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -1012,29 +1083,34 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#shares">/shares</a>.
      *
      * @param string $path
-     *    The Dropbox path to the file or folder you want to create a shareable link to (UTF-8).
-     *
-     * @return string
-     *    The URL of the preview page.
+     *                     The Dropbox path to the file or folder you want to create a shareable link to (UTF-8).
      *
      * @throws Exception
+     *
+     * @return string
+     *                The URL of the preview page.
      */
-    function createShareableLink($path)
+    public function createShareableLink($path)
     {
-        Path::checkArg("path", $path);
+        Path::checkArg('path', $path);
 
         $response = $this->doPost(
             $this->apiHost,
-            $this->appendFilePath("1/shares", $path),
-            array(
-                "short_url" => "false",
-            ));
+            $this->appendFilePath('1/shares', $path),
+            [
+                'short_url' => 'false',
+            ]);
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         $j = RequestUtil::parseResponseJson($response->body);
-        return self::getField($j, "url");
+
+        return self::getField($j, 'url');
     }
 
     /**
@@ -1044,30 +1120,35 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#media">/media</a>.
      *
      * @param string $path
-     *    The Dropbox path to a file or folder (UTF-8).
-     *
-     * @return array
-     *    A <code>list(string $url, \DateTime $expires)</code> where <code>$url</code> is a direct
-     *    link to the requested file and <code>$expires</code> is a standard PHP
-     *    <code>\DateTime</code> representing when <code>$url</code> will stop working.
+     *                     The Dropbox path to a file or folder (UTF-8).
      *
      * @throws Exception
+     *
+     * @return array
+     *               A <code>list(string $url, \DateTime $expires)</code> where <code>$url</code> is a direct
+     *               link to the requested file and <code>$expires</code> is a standard PHP
+     *               <code>\DateTime</code> representing when <code>$url</code> will stop working.
      */
-    function createTemporaryDirectLink($path)
+    public function createTemporaryDirectLink($path)
     {
-        Path::checkArgNonRoot("path", $path);
+        Path::checkArgNonRoot('path', $path);
 
         $response = $this->doPost(
             $this->apiHost,
-            $this->appendFilePath("1/media", $path));
+            $this->appendFilePath('1/media', $path));
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         $j = RequestUtil::parseResponseJson($response->body);
-        $url = self::getField($j, "url");
-        $expires = self::parseDateTime(self::getField($j, "expires"));
-        return array($url, $expires);
+        $url = self::getField($j, 'url');
+        $expires = self::parseDateTime(self::getField($j, 'expires'));
+
+        return [$url, $expires];
     }
 
     /**
@@ -1084,24 +1165,29 @@ class Client
      * @param string path
      *    The Dropbox path of the file or folder you want to create a copy ref for (UTF-8).
      *
-     * @return string
-     *    The copy ref (just a string that you keep track of).
-     *
      * @throws Exception
+     *
+     * @return string
+     *                The copy ref (just a string that you keep track of).
      */
-    function createCopyRef($path)
+    public function createCopyRef($path)
     {
-        Path::checkArg("path", $path);
+        Path::checkArg('path', $path);
 
         $response = $this->doGet(
             $this->apiHost,
-            $this->appendFilePath("1/copy_ref", $path));
+            $this->appendFilePath('1/copy_ref', $path));
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         $j = RequestUtil::parseResponseJson($response->body);
-        return self::getField($j, "copy_ref");
+
+        return self::getField($j, 'copy_ref');
     }
 
     /**
@@ -1110,46 +1196,44 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#thumbnails">/thumbnails</a>.
      *
      * @param string $path
-     *    The path to the file you want a thumbnail for (UTF-8).
-     *
+     *                       The path to the file you want a thumbnail for (UTF-8).
      * @param string $format
-     *    One of the two image formats: "jpeg" or "png".
-     *
+     *                       One of the two image formats: "jpeg" or "png".
      * @param string $size
-     *    One of the predefined image size names, as a string:
-     *    <ul>
-     *    <li>"xs" - 32x32</li>
-     *    <li>"s" - 64x64</li>
-     *    <li>"m" - 128x128</li>
-     *    <li>"l" - 640x480</li>
-     *    <li>"xl" - 1024x768</li>
-     *    </ul>
-     *
-     * @return array|null
-     *    If the file exists, you'll get <code>list(array $metadata, string $data)</code> where
-     *    <code>$metadata</code> is the file's
-     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
-     *    and $data is the raw data for the thumbnail image.  If the file doesn't exist, you'll
-     *    get <code>null</code>.
+     *                       One of the predefined image size names, as a string:
+     *                       <ul>
+     *                       <li>"xs" - 32x32</li>
+     *                       <li>"s" - 64x64</li>
+     *                       <li>"m" - 128x128</li>
+     *                       <li>"l" - 640x480</li>
+     *                       <li>"xl" - 1024x768</li>
+     *                       </ul>
      *
      * @throws Exception
+     *
+     * @return array|null
+     *                    If the file exists, you'll get <code>list(array $metadata, string $data)</code> where
+     *                    <code>$metadata</code> is the file's
+     *                    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
+     *                    and $data is the raw data for the thumbnail image.  If the file doesn't exist, you'll
+     *                    get <code>null</code>.
      */
-    function getThumbnail($path, $format, $size)
+    public function getThumbnail($path, $format, $size)
     {
-        Path::checkArgNonRoot("path", $path);
-        Checker::argString("format", $format);
-        Checker::argString("size", $size);
-        if (!in_array($format, array("jpeg", "png"))) {
+        Path::checkArgNonRoot('path', $path);
+        Checker::argString('format', $format);
+        Checker::argString('size', $size);
+        if (!in_array($format, ['jpeg', 'png'])) {
             throw new \InvalidArgumentException("Invalid 'format': ".Util::q($format));
         }
-        if (!in_array($size, array("xs", "s", "m", "l", "xl"))) {
+        if (!in_array($size, ['xs', 's', 'm', 'l', 'xl'])) {
             throw new \InvalidArgumentException("Invalid 'size': ".Util::q($format));
         }
 
         $url = $this->buildUrlForGetOrPut(
             $this->contentHost,
-            $this->appendFilePath("1/thumbnails", $path),
-            array("size" => $size, "format" => $format));
+            $this->appendFilePath('1/thumbnails', $path),
+            ['size' => $size, 'format' => $format]);
 
         $curl = $this->mkCurl($url);
         $metadataCatcher = new DropboxMetadataHeaderCatcher($curl->handle);
@@ -1157,45 +1241,51 @@ class Client
         $curl->set(CURLOPT_RETURNTRANSFER, true);
         $response = $curl->exec();
 
-        if ($response->statusCode === 404) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 404) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         $metadata = $metadataCatcher->getMetadata();
-        return array($metadata, $response->body);
+
+        return [$metadata, $response->body];
     }
 
     /**
-     * Copies a file or folder to a new location
+     * Copies a file or folder to a new location.
      *
      * See <a href="https://www.dropbox.com/developers/core/docs#fileops-copy">/fileops/copy</a>.
      *
      * @param string $fromPath
-     *    The Dropbox path of the file or folder you want to copy (UTF-8).
-     *
+     *                         The Dropbox path of the file or folder you want to copy (UTF-8).
      * @param string $toPath
-     *    The destination Dropbox path (UTF-8).
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
-     *    object</a> for the new file or folder.
+     *                         The destination Dropbox path (UTF-8).
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
+     *               object</a> for the new file or folder.
      */
-    function copy($fromPath, $toPath)
+    public function copy($fromPath, $toPath)
     {
-        Path::checkArg("fromPath", $fromPath);
-        Path::checkArgNonRoot("toPath", $toPath);
+        Path::checkArg('fromPath', $fromPath);
+        Path::checkArgNonRoot('toPath', $toPath);
 
         $response = $this->doPost(
             $this->apiHost,
-            "1/fileops/copy",
-            array(
-                "root" => "auto",
-                "from_path" => $fromPath,
-                "to_path" => $toPath,
-            ));
+            '1/fileops/copy',
+            [
+                'root'      => 'auto',
+                'from_path' => $fromPath,
+                'to_path'   => $toPath,
+            ]);
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -1207,33 +1297,34 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#fileops-copy">/fileops/copy</a>.
      *
      * @param string $copyRef
-     *    A copy ref obtained via the {@link createCopyRef()} call.
-     *
+     *                        A copy ref obtained via the {@link createCopyRef()} call.
      * @param string $toPath
-     *    The Dropbox path you want to copy the file or folder to (UTF-8).
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
-     *    object</a> for the new file or folder.
+     *                        The Dropbox path you want to copy the file or folder to (UTF-8).
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
+     *               object</a> for the new file or folder.
      */
-    function copyFromCopyRef($copyRef, $toPath)
+    public function copyFromCopyRef($copyRef, $toPath)
     {
-        Checker::argStringNonEmpty("copyRef", $copyRef);
-        Path::checkArgNonRoot("toPath", $toPath);
+        Checker::argStringNonEmpty('copyRef', $copyRef);
+        Path::checkArgNonRoot('toPath', $toPath);
 
         $response = $this->doPost(
             $this->apiHost,
-            "1/fileops/copy",
-            array(
-                "root" => "auto",
-                "from_copy_ref" => $copyRef,
-                "to_path" => $toPath,
-            )
+            '1/fileops/copy',
+            [
+                'root'          => 'auto',
+                'from_copy_ref' => $copyRef,
+                'to_path'       => $toPath,
+            ]
         );
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -1244,60 +1335,66 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#fileops-create-folder">/fileops/create_folder</a>.
      *
      * @param string $path
-     *    The Dropbox path at which to create the folder (UTF-8).
-     *
-     * @return array|null
-     *    If successful, you'll get back the
-     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
-     *    for the newly-created folder.  If not successful, you'll get <code>null</code>.
+     *                     The Dropbox path at which to create the folder (UTF-8).
      *
      * @throws Exception
+     *
+     * @return array|null
+     *                    If successful, you'll get back the
+     *                    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
+     *                    for the newly-created folder.  If not successful, you'll get <code>null</code>.
      */
-    function createFolder($path)
+    public function createFolder($path)
     {
-        Path::checkArgNonRoot("path", $path);
+        Path::checkArgNonRoot('path', $path);
 
         $response = $this->doPost(
             $this->apiHost,
-            "1/fileops/create_folder",
-            array(
-                "root" => "auto",
-                "path" => $path,
-            ));
+            '1/fileops/create_folder',
+            [
+                'root' => 'auto',
+                'path' => $path,
+            ]);
 
-        if ($response->statusCode === 403) return null;
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode === 403) {
+            return;
+        }
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
 
     /**
-     * Deletes a file or folder
+     * Deletes a file or folder.
      *
      * See <a href="https://www.dropbox.com/developers/core/docs#fileops-delete">/fileops/delete</a>.
      *
      * @param string $path
-     *    The Dropbox path of the file or folder to delete (UTF-8).
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
-     *    object</a> for the deleted file or folder.
+     *                     The Dropbox path of the file or folder to delete (UTF-8).
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
+     *               object</a> for the deleted file or folder.
      */
-    function delete($path)
+    public function delete($path)
     {
-        Path::checkArgNonRoot("path", $path);
+        Path::checkArgNonRoot('path', $path);
 
         $response = $this->doPost(
             $this->apiHost,
-            "1/fileops/delete",
-            array(
-                "root" => "auto",
-                "path" => $path,
-            ));
+            '1/fileops/delete',
+            [
+                'root' => 'auto',
+                'path' => $path,
+            ]);
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -1308,32 +1405,33 @@ class Client
      * See <a href="https://www.dropbox.com/developers/core/docs#fileops-move">/fileops/move</a>.
      *
      * @param string $fromPath
-     *    The source Dropbox path (UTF-8).
-     *
+     *                         The source Dropbox path (UTF-8).
      * @param string $toPath
-     *    The destination Dropbox path (UTF-8).
-     *
-     * @return mixed
-     *    The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
-     *    object</a> for the destination file or folder.
+     *                         The destination Dropbox path (UTF-8).
      *
      * @throws Exception
+     *
+     * @return mixed
+     *               The <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata
+     *               object</a> for the destination file or folder.
      */
-    function move($fromPath, $toPath)
+    public function move($fromPath, $toPath)
     {
-        Path::checkArgNonRoot("fromPath", $fromPath);
-        Path::checkArgNonRoot("toPath", $toPath);
+        Path::checkArgNonRoot('fromPath', $fromPath);
+        Path::checkArgNonRoot('toPath', $toPath);
 
         $response = $this->doPost(
             $this->apiHost,
-            "1/fileops/move",
-            array(
-                "root" => "auto",
-                "from_path" => $fromPath,
-                "to_path" => $toPath,
-            ));
+            '1/fileops/move',
+            [
+                'root'      => 'auto',
+                'from_path' => $fromPath,
+                'to_path'   => $toPath,
+            ]);
 
-        if ($response->statusCode !== 200) throw RequestUtil::unexpectedStatus($response);
+        if ($response->statusCode !== 200) {
+            throw RequestUtil::unexpectedStatus($response);
+        }
 
         return RequestUtil::parseResponseJson($response->body);
     }
@@ -1342,17 +1440,17 @@ class Client
      * Build a URL for making a GET or PUT request.  Will add the "locale"
      * parameter.
      *
-     * @param string $host
-     *    Either the "API" or "API content" hostname from {@link getHost()}.
-     * @param string $path
-     *    The "path" part of the URL.  For example, "/account/info".
+     * @param string     $host
+     *                           Either the "API" or "API content" hostname from {@link getHost()}.
+     * @param string     $path
+     *                           The "path" part of the URL.  For example, "/account/info".
      * @param array|null $params
-     *    URL parameters.  For POST requests, do not put the parameters here.
-     *    Include them in the request body instead.
+     *                           URL parameters.  For POST requests, do not put the parameters here.
+     *                           Include them in the request body instead.
      *
      * @return string
      */
-    function buildUrlForGetOrPut($host, $path, $params = null)
+    public function buildUrlForGetOrPut($host, $path, $params = null)
     {
         return RequestUtil::buildUrlForGetOrPut($this->userLocale, $host, $path, $params);
     }
@@ -1361,20 +1459,22 @@ class Client
      * Perform an OAuth-2-authorized GET request to the Dropbox API.  Will automatically
      * fill in "User-Agent" and "locale" as well.
      *
-     * @param string $host
-     *    Either the "API" or "API content" hostname from {@link getHost()}.
-     * @param string $path
-     *    The "path" part of the URL.  For example, "/account/info".
+     * @param string     $host
+     *                           Either the "API" or "API content" hostname from {@link getHost()}.
+     * @param string     $path
+     *                           The "path" part of the URL.  For example, "/account/info".
      * @param array|null $params
-     *    GET parameters.
-     * @return HttpResponse
+     *                           GET parameters.
      *
      * @throws Exception
+     *
+     * @return HttpResponse
      */
-    function doGet($host, $path, $params = null)
+    public function doGet($host, $path, $params = null)
     {
-        Checker::argString("host", $host);
-        Checker::argString("path", $path);
+        Checker::argString('host', $host);
+        Checker::argString('path', $path);
+
         return RequestUtil::doGet($this->clientIdentifier, $this->accessToken, $this->userLocale,
                                   $host, $path, $params);
     }
@@ -1383,20 +1483,22 @@ class Client
      * Perform an OAuth-2-authorized POST request to the Dropbox API.  Will automatically
      * fill in "User-Agent" and "locale" as well.
      *
-     * @param string $host
-     *    Either the "API" or "API content" hostname from {@link getHost()}.
-     * @param string $path
-     *    The "path" part of the URL.  For example, "/commit_chunked_upload".
+     * @param string     $host
+     *                           Either the "API" or "API content" hostname from {@link getHost()}.
+     * @param string     $path
+     *                           The "path" part of the URL.  For example, "/commit_chunked_upload".
      * @param array|null $params
-     *    POST parameters.
-     * @return HttpResponse
+     *                           POST parameters.
      *
      * @throws Exception
+     *
+     * @return HttpResponse
      */
-    function doPost($host, $path, $params = null)
+    public function doPost($host, $path, $params = null)
     {
-        Checker::argString("host", $host);
-        Checker::argString("path", $path);
+        Checker::argString('host', $host);
+        Checker::argString('path', $path);
+
         return RequestUtil::doPost($this->clientIdentifier, $this->accessToken, $this->userLocale,
                                    $host, $path, $params);
     }
@@ -1406,11 +1508,11 @@ class Client
      * and the proper OAuth 2 "Authorization" header.
      *
      * @param string $url
-     *    Generate this URL using {@link buildUrl()}.
+     *                    Generate this URL using {@link buildUrl()}.
      *
      * @return Curl
      */
-    function mkCurl($url)
+    public function mkCurl($url)
     {
         return RequestUtil::mkCurlWithOAuth($this->clientIdentifier, $url, $this->accessToken);
     }
@@ -1420,31 +1522,37 @@ class Client
      * formatted like: <code>"Sat, 21 Aug 2010 22:31:20 +0000"</code>.
      *
      * @param string $apiDateTimeString
-     *    A date/time string returned by the API.
-     *
-     * @return \DateTime
-     *    A standard PHP <code>\DateTime</code> instance.
+     *                                  A date/time string returned by the API.
      *
      * @throws Exception_BadResponse
-     *    Thrown if <code>$apiDateTimeString</code> isn't correctly formatted.
+     *                               Thrown if <code>$apiDateTimeString</code> isn't correctly formatted.
+     *
+     * @return \DateTime
+     *                   A standard PHP <code>\DateTime</code> instance.
      */
-    static function parseDateTime($apiDateTimeString)
+    public static function parseDateTime($apiDateTimeString)
     {
         $dt = \DateTime::createFromFormat(self::$dateTimeFormat, $apiDateTimeString);
-        if ($dt === false) throw new Exception_BadResponse(
-            "Bad date/time from server: ".Util::q($apiDateTimeString));
+        if ($dt === false) {
+            throw new Exception_BadResponse(
+            'Bad date/time from server: '.Util::q($apiDateTimeString));
+        }
+
         return $dt;
     }
 
-    private static $dateTimeFormat = "D, d M Y H:i:s T";
+    private static $dateTimeFormat = 'D, d M Y H:i:s T';
 
     /**
      * @internal
      */
-    static function getField($j, $fieldName)
+    public static function getField($j, $fieldName)
     {
-        if (!array_key_exists($fieldName, $j)) throw new Exception_BadResponse(
+        if (!array_key_exists($fieldName, $j)) {
+            throw new Exception_BadResponse(
             "missing field \"$fieldName\" in ".Util::q($j));
+        }
+
         return $j[$fieldName];
     }
 
@@ -1456,40 +1564,54 @@ class Client
      *
      * @return string
      */
-    static function getAccessTokenError($s)
+    public static function getAccessTokenError($s)
     {
-        if ($s === null) return "can't be null";
-        if (strlen($s) === 0) return "can't be empty";
-        if (preg_match('@[^-=_~/A-Za-z0-9\.\+]@', $s) === 1) return "contains invalid character";
-        return null;
+        if ($s === null) {
+            return "can't be null";
+        }
+        if (strlen($s) === 0) {
+            return "can't be empty";
+        }
+        if (preg_match('@[^-=_~/A-Za-z0-9\.\+]@', $s) === 1) {
+            return 'contains invalid character';
+        }
     }
 
     /**
      * @internal
      */
-    static function checkAccessTokenArg($argName, $accessToken)
+    public static function checkAccessTokenArg($argName, $accessToken)
     {
         $error = self::getAccessTokenError($accessToken);
-        if ($error !== null) throw new \InvalidArgumentException("'$argName' invalid: $error");
+        if ($error !== null) {
+            throw new \InvalidArgumentException("'$argName' invalid: $error");
+        }
     }
 
     /**
      * @internal
      */
-    static function getClientIdentifierError($s)
+    public static function getClientIdentifierError($s)
     {
-        if ($s === null) return "can't be null";
-        if (strlen($s) === 0) return "can't be empty";
-        if (preg_match('@[\x00-\x1f\x7f]@', $s) === 1) return "contains control character";
-        return null;
+        if ($s === null) {
+            return "can't be null";
+        }
+        if (strlen($s) === 0) {
+            return "can't be empty";
+        }
+        if (preg_match('@[\x00-\x1f\x7f]@', $s) === 1) {
+            return 'contains control character';
+        }
     }
 
     /**
      * @internal
      */
-    static function checkClientIdentifierArg($argName, $accessToken)
+    public static function checkClientIdentifierArg($argName, $accessToken)
     {
         $error = self::getClientIdentifierError($accessToken);
-        if ($error !== null) throw new \InvalidArgumentException("'$argName' invalid: $error");
+        if ($error !== null) {
+            throw new \InvalidArgumentException("'$argName' invalid: $error");
+        }
     }
 }

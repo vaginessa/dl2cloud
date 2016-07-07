@@ -1,4 +1,5 @@
 <?php
+
 namespace Dropbox;
 
 class Util
@@ -19,7 +20,7 @@ class Util
      * support software that isn't Unicode-aware.
      *
      * @param string $string
-     *    A UTF-8 encoded string.
+     *                       A UTF-8 encoded string.
      *
      * @return string
      */
@@ -28,6 +29,7 @@ class Util
         if (\substr_compare($string, "\xEF\xBB\xBF", 0, 3) === 0) {
             $string = \substr($string, 3);
         }
+
         return $string;
     }
 }
